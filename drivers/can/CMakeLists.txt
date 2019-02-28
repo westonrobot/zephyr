@@ -9,3 +9,15 @@ zephyr_sources_ifdef(CONFIG_CAN_MCUX_FLEXCAN can_mcux_flexcan.c)
 zephyr_sources_ifdef(CONFIG_USERSPACE        can_handlers.c)
 zephyr_sources_ifdef(CONFIG_CAN_SHELL        can_shell.c)
 zephyr_sources_ifdef(CONFIG_CAN_NET          can_net.c)
+
+if(CONFIG_CAN_NATIVE_POSIX)
+	zephyr_library()
+	zephyr_library_include_directories(${ZEPHYR_BASE}/subsys/net/l2)
+	zephyr_library_compile_definitions(NO_POSIX_CHEATS)
+	zephyr_library_compile_definitions(_BSD_SOURCE)
+	zephyr_library_compile_definitions(_DEFAULT_SOURCE)
+	zephyr_library_sources(
+		canbus_native_posix.c
+		canbus_native_posix_adapt.c
+		)
+endif()
