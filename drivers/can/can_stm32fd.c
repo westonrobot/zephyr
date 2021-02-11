@@ -40,10 +40,21 @@ int can_stm32fd_get_core_clock(const struct device *dev, uint32_t *rate)
 
 void can_stm32fd_clock_enable(void)
 {
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	LL_RCC_SetFDCANClockSource(LL_RCC_FDCAN_CLKSOURCE_PLL1Q);
+	__HAL_RCC_FDCAN_CLK_ENABLE();
+
+	if (!LL_RCC_PLL1Q_IsEnabled()) {
+		LOG_ERR("PLL1Q clock must be enabled!");
+	}
+
+	// FDCAN_CCU->CCFG &= (FDCANCCU_CCFG_TQBT | FDCANCCU_CCFG_CFL | FDCANCCU_CCFG_OCPM);
+#else  /* CONFIG_SOC_SERIES_STM32H7X */
 	LL_RCC_SetFDCANClockSource(LL_RCC_FDCAN_CLKSOURCE_PCLK1);
 	__HAL_RCC_FDCAN_CLK_ENABLE();
 
-	FDCAN_CONFIG->CKDIV = CONFIG_CAN_STM32_CLOCK_DIVISOR >> 1;
+	// FDCAN_CONFIG->CKDIV = CONFIG_CAN_STM32_CLOCK_DIVISOR >> 1;
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 }
 
 void can_stm32fd_register_state_change_isr(const struct device *dev,
@@ -74,6 +85,7 @@ static int can_stm32fd_init(const struct device *dev)
 	can_stm32fd_clock_enable();
 	ret = can_mcan_init(dev, mcan_cfg, msg_ram, mcan_data);
 	if (ret) {
+		LOG_ERR("CAN mcan init failed (%d)", ret);
 		return ret;
 	}
 

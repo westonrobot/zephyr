@@ -1454,10 +1454,50 @@
 #endif /* CONFIG_CAN_STM32FD */
 
 #ifdef CONFIG_CAN_STM32FD
+
+  __IO uint32_t NDAT1;        /*!< FDCAN New Data 1 register,                                       Address offset: 0x098 */
+  __IO uint32_t NDAT2;        /*!< FDCAN New Data 2 register,                                       Address offset: 0x09C */
+  __IO uint32_t RXF0C;        /*!< FDCAN Rx FIFO 0 Configuration register,                          Address offset: 0x0A0 */
+
+  __IO uint32_t RXF0S;        /*!< FDCAN Rx FIFO 0 Status register,                                 Address offset: 0x0A4 */
+  __IO uint32_t RXF0A;        /*!< FDCAN Rx FIFO 0 Acknowledge register,                            Address offset: 0x0A8 */
+
+  __IO uint32_t RXBC;         /*!< FDCAN Rx Buffer Configuration register,                          Address offset: 0x0AC */
+
+  __IO uint32_t RXF1C;        /*!< FDCAN Rx FIFO 1 Configuration register,                          Address offset: 0x0B0 */
+
+  __IO uint32_t RXF1S;        /*!< FDCAN Rx FIFO 1 Status register,                                 Address offset: 0x0B4 */
+  __IO uint32_t RXF1A;        /*!< FDCAN Rx FIFO 1 Acknowledge register,                            Address offset: 0x0B8 */
+
+  __IO uint32_t RXESC;        /*!< FDCAN Rx Buffer/FIFO Element Size Configuration register,        Address offset: 0x0BC */
+
+  __IO uint32_t TXBC;         /*!< FDCAN Tx Buffer Configuration register,                          Address offset: 0x0C0 */
+  
+  __IO uint32_t TXFQS;        /*!< FDCAN Tx FIFO/Queue Status register,                             Address offset: 0x0C4 */
+  __IO uint32_t TXESC;        /*!< FDCAN Tx Buffer Element Size Configuration register,             Address offset: 0x0C8 */
+  __IO uint32_t TXBRP;        /*!< FDCAN Tx Buffer Request Pending register,                        Address offset: 0x0CC */
+  __IO uint32_t TXBAR;        /*!< FDCAN Tx Buffer Add Request register,                            Address offset: 0x0D0 */
+  __IO uint32_t TXBCR;        /*!< FDCAN Tx Buffer Cancellation Request register,                   Address offset: 0x0D4 */
+  __IO uint32_t TXBTO;        /*!< FDCAN Tx Buffer Transmission Occurred register,                  Address offset: 0x0D8 */
+  __IO uint32_t TXBCF;        /*!< FDCAN Tx Buffer Cancellation Finished register,                  Address offset: 0x0DC */
+  __IO uint32_t TXBTIE;       /*!< FDCAN Tx Buffer Transmission Interrupt Enable register,          Address offset: 0x0E0 */
+  __IO uint32_t TXBCIE;       /*!< FDCAN Tx Buffer Cancellation Finished Interrupt Enable register, Address offset: 0x0E4 */
+  __IO uint32_t RESERVED6[2]; /*!< Reserved,                                                                0x0E8 - 0x0EC */
+  __IO uint32_t TXEFC;        /*!< FDCAN Tx Event FIFO Configuration register,                      Address offset: 0x0F0 */
+  __IO uint32_t TXEFS;        /*!< FDCAN Tx Event FIFO Status register,                             Address offset: 0x0F4 */
+  __IO uint32_t TXEFA;        /*!< FDCAN Tx Event FIFO Acknowledge register,                        Address offset: 0x0F8 */
+  __IO uint32_t RESERVED7;    /*!< Reserved,                                                                        0x0FC */
+
 struct can_mcan_reg {
 	volatile uint32_t crel;     /* Core Release Register */
 	volatile uint32_t endn;     /* Endian Register */
+
+	#if !defined(CONFIG_SOC_SERIES_STM32H7X)
 	volatile uint32_t cust;     /* Customer Register */
+	#else
+	uint32_t res0;              /* Reserved (1) */
+	#endif  /* CONFIG_SOC_SERIES_STM32H7X */
+
 	volatile uint32_t dbtp;     /* Data Bit Timing & Prescaler Register */
 	volatile uint32_t test;     /* Test Register */
 	volatile uint32_t rwd;      /* RAM Watchdog */
@@ -1478,8 +1518,17 @@ struct can_mcan_reg {
 	volatile uint32_t ile;      /* Interrupt Line Enable */
 	uint32_t res3[8];           /* Reserved (8) */
 	volatile uint32_t rxgfc;    /* Global Filter Configuration */
+
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t sidfc;     /* Standard ID Filter Configuration */
+	volatile uint32_t xidfc;     /* Extended ID Filter Configuration */
+	uint32_t res31;              /* Reserved (1) */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
+
 	volatile uint32_t xidam;    /* Extended ID AND Mask */
 	volatile uint32_t hpms;     /* High Priority Message Status */
+
+
 	uint32_t res4;              /* Reserved (1) */
 	volatile uint32_t rxf0s;    /* Rx FIFO 0 Status */
 	volatile uint32_t rxf0a;    /* Rx FIFO 0 Acknowledge */
