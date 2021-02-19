@@ -8,7 +8,7 @@
 
 config CAN_NATIVE_POSIX
 	bool "native_posix CAN Driver"
-	depends on ARCH_POSIX
+	depends on ARCH_POSIX && NETWORKING
 	help
 	  Enable native_posix CAN driver
 

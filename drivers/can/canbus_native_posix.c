@@ -24,12 +24,12 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <errno.h>
 #include <stddef.h>
 
-// #include <net/net_l2.h>
+#include <net/net_l2.h>
 #include <net/net_pkt.h>
 #include <net/net_core.h>
 #include <net/net_if.h>
 
-#include <drivers/can.h>
+#include <net/can.h>
 #include <net/socket_can.h>
 
 #include "canbus_native_posix_priv.h"
