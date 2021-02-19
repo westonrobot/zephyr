@@ -24,6 +24,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <errno.h>
 #include <stddef.h>
 
+// #include <net/net_l2.h>
 #include <net/net_pkt.h>
 #include <net/net_core.h>
 #include <net/net_if.h>
@@ -112,7 +113,7 @@ static int canbus_np_init(struct device *dev)
 {
 	struct canbus_np_context *ctx = dev->data;
 
-	ctx->if_name = CONFIG_CAN_NATIVE_POSIX_INTERFACE_NAME;
+	ctx->if_name = CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_NAME;
 
 	ctx->dev_fd = canbus_np_iface_open(ctx->if_name);
 	if (ctx->dev_fd < 0) {
@@ -213,10 +214,10 @@ static const struct can_driver_api can_api_funcs = {
 	.register_state_change_isr = canbus_np_register_state_change_isr
 };
 
-// #ifdef CONFIG_CAN_1
+#ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_1
 
-DEVICE_AND_API_INIT(canbus_np_1, DT_CAN_1_NAME, canbus_np_init,
-		    &canbus_context_data, NULL, POST_KERNEL,
+DEVICE_AND_API_INIT(canbus_np_1, CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_NAME,
+		    canbus_np_init, &canbus_context_data, NULL, POST_KERNEL,
 		    CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &can_api_funcs);
 
 #if defined(CONFIG_NET_SOCKETS_CAN)
@@ -230,7 +231,7 @@ CAN_DEFINE_MSGQ(socket_can_msgq, 5);
 
 static void socket_can_iface_init(struct net_if *iface)
 {
-	struct device *dev = net_if_get_device(iface);
+	const struct device *dev = net_if_get_device(iface);
 	struct canbus_np_context *socket_context = dev->data;
 
 	socket_context->iface = iface;
@@ -238,7 +239,7 @@ static void socket_can_iface_init(struct net_if *iface)
 	LOG_DBG("Init CAN interface %p dev %p", iface, dev);
 }
 
-static void tx_irq_callback(uint32_t error_flags)
+static void tx_irq_callback(uint32_t error_flags, void *arg)
 {
 	if (error_flags) {
 		LOG_DBG("Callback! error-code: %d", error_flags);
@@ -246,7 +247,7 @@ static void tx_irq_callback(uint32_t error_flags)
 }
 
 /* This is called by net_if.c when packet is about to be sent */
-static int socket_can_send(struct device *dev, struct net_pkt *pkt)
+static int socket_can_send(const struct device *dev, struct net_pkt *pkt)
 {
 	struct canbus_np_context *socket_context = dev->data;
 	int ret;
@@ -257,7 +258,7 @@ static int socket_can_send(struct device *dev, struct net_pkt *pkt)
 
 	ret = can_send(socket_context->can_dev,
 		       (struct zcan_frame *)pkt->frags->data, SEND_TIMEOUT,
-		       tx_irq_callback);
+		       tx_irq_callback, NULL);
 	if (ret) {
 		LOG_DBG("Cannot send socket CAN msg (%d)", ret);
 	}
@@ -268,7 +269,7 @@ static int socket_can_send(struct device *dev, struct net_pkt *pkt)
 	return -ret;
 }
 
-static int socket_can_setsockopt(struct device *dev, void *obj, int level,
+static int socket_can_setsockopt(const struct device *dev, void *obj, int level,
 				 int optname, const void *optval,
 				 socklen_t optlen)
 {
@@ -308,11 +309,12 @@ static struct canbus_api socket_can_api = {
 
 static int socket_can_init_1(struct device *dev)
 {
-	struct device *can_dev = DEVICE_GET(canbus_np_1);
+	const struct device *can_dev = DEVICE_GET(canbus_np_1);
 	struct canbus_np_context *socket_context = dev->data;
 
-	LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
-		dev->config->name, can_dev, can_dev->config->name);
+	// LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
+	// 	dev->config->name, can_dev, can_dev->config->name);
+    LOG_DBG("Init socket CAN device: vcan0");
 
 	socket_context->can_dev = can_dev;
 	socket_context->msgq = &socket_can_msgq;
@@ -320,11 +322,12 @@ static int socket_can_init_1(struct device *dev)
 	return 0;
 }
 
-NET_DEVICE_INIT(socket_can_native_posix_1, SOCKET_CAN_NAME_1, socket_can_init_1,
-		&canbus_context_data, NULL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
-		&socket_can_api, CANBUS_L2, NET_L2_GET_CTX_TYPE(CANBUS_L2),
-		CAN_MTU);
+NET_DEVICE_INIT(socket_can_native_posix_1,
+		CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
+		device_pm_control_nop, &canbus_context_data, NULL,
+		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_L2,
+		NET_L2_GET_CTX_TYPE(CANBUS_L2), CAN_MTU);
 
 #endif /* CONFIG_NET_SOCKETS_CAN */
 
-// #endif /* CONFIG_CAN_1 */
+#endif /* CONFIG_CAN_NATIVE_POSIX_INTERFACE_1 */
