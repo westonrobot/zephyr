@@ -39,6 +39,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 struct canbus_np_context {
 	uint8_t recv[CAN_MTU];
+    struct can_frame frame;
 
 	struct device *can_dev;
 	struct k_msgq *msgq;
@@ -60,18 +61,20 @@ static int read_data(struct canbus_np_context *ctx, int fd)
 	struct net_pkt *pkt;
 	int count;
 
-	count = canbus_np_read_data(fd, ctx->recv, sizeof(ctx->recv));
+	count = canbus_np_read_data(fd, (void*)(&ctx->frame), sizeof(ctx->frame));
 	if (count <= 0) {
 		return 0;
 	}
 
-	pkt = net_pkt_rx_alloc_with_buffer(ctx->iface, count, AF_CAN, 0,
+    struct zcan_frame zframe;
+    can_copy_frame_to_zframe(&ctx->frame, &zframe);
+	pkt = net_pkt_rx_alloc_with_buffer(ctx->iface, sizeof(zframe), AF_CAN, 0,
 					   NET_BUF_TIMEOUT);
 	if (!pkt) {
 		return -ENOMEM;
 	}
 
-	if (net_pkt_write(pkt, ctx->recv, count)) {
+	if (net_pkt_write(pkt, (void*)(&zframe), sizeof(zframe))) {
 		net_pkt_unref(pkt);
 		return -ENOBUFS;
 	}

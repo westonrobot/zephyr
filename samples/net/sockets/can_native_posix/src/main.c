@@ -108,7 +108,7 @@ static void rx(int *can_fd, int *do_close_period,
 	socklen_t addr_len;
 	struct zcan_frame msg;
 	struct can_frame frame;
-	int ret;
+	volatile int ret;
 
     printk("fd %d\n", fd);
 	printk("[%d] Waiting CAN data...", fd);
@@ -129,8 +129,12 @@ static void rx(int *can_fd, int *do_close_period,
 
 		can_copy_frame_to_zframe(&frame, &msg);
 
-		printk("[%d] CAN msg: type 0x%x RTR 0x%x EID 0x%x DLC 0x%x",
+		printk("\n[%d] CAN msg: type 0x%x RTR 0x%x EID 0x%x DLC 0x%x",
 			fd, msg.id_type, msg.rtr, msg.std_id, msg.dlc);
+        printk("\nData: ");
+        for(int i = 0; i < msg.dlc ; ++i)
+            printk("%x ", msg.data[i]);
+        printk("\n");
 
 		if (!msg.rtr) {
 			if (msg.dlc > 8) {
