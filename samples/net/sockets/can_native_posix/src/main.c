@@ -34,7 +34,7 @@ static const struct zcan_filter zfilter = {
 	.rtr = CAN_DATAFRAME,
 	.std_id = 0x1,
 	.rtr_mask = 1,
-	.std_id_mask = CAN_STD_ID_MASK
+	.std_id_mask = 0x000,//CAN_STD_ID_MASK
 };
 
 static struct can_filter filter;
@@ -52,17 +52,18 @@ static void tx(int *can_fd)
 	msg.rtr = CAN_DATAFRAME;
 
 	for (i = 0; i < msg.dlc; i++) {
-		msg.data[i] = 0xF0 | i;
+		// msg.data[i] = 0xF0 | i;
+    	msg.data[i] = 0xd0 + i;
 	}
 
 	can_copy_zframe_to_frame(&msg, &frame);
 
-	LOG_DBG("Sending CAN data...");
+	printk("Sending CAN data...");
 
 	while (1) {
 		ret = send(fd, &frame, sizeof(frame), 0);
 		if (ret < 0) {
-			LOG_ERR("Cannot send CAN message (%d)", -errno);
+			printk("Cannot send CAN message (%d)", -errno);
 		}
 
 		k_sleep(SLEEP_PERIOD);
@@ -76,7 +77,7 @@ static int create_socket(const struct can_filter *filter)
 
 	fd = socket(AF_CAN, SOCK_RAW, CAN_RAW);
 	if (fd < 0) {
-		LOG_ERR("Cannot create %s CAN socket (%d)", "2nd", fd);
+		printk("Cannot create %s CAN socket (%d)", "2nd", fd);
 		return fd;
 	}
 
@@ -86,7 +87,7 @@ static int create_socket(const struct can_filter *filter)
 
 	ret = bind(fd, (struct sockaddr *)&can_addr, sizeof(can_addr));
 	if (ret < 0) {
-		LOG_ERR("Cannot bind %s CAN socket (%d)", "2nd", -errno);
+		printk("Cannot bind %s CAN socket (%d)", "2nd", -errno);
 		(void)close(fd);
 		return ret;
 	}
@@ -100,6 +101,7 @@ static int create_socket(const struct can_filter *filter)
 static void rx(int *can_fd, int *do_close_period,
 	       const struct can_filter *filter)
 {
+    printk("entering rx()\n");
 	int close_period = POINTER_TO_INT(do_close_period);
 	int fd = POINTER_TO_INT(can_fd);
 	struct sockaddr_can can_addr;
@@ -108,7 +110,8 @@ static void rx(int *can_fd, int *do_close_period,
 	struct can_frame frame;
 	int ret;
 
-	LOG_DBG("[%d] Waiting CAN data...", fd);
+    printk("fd %d\n", fd);
+	printk("[%d] Waiting CAN data...", fd);
 
 	while (1) {
 		uint8_t *data;
@@ -119,14 +122,14 @@ static void rx(int *can_fd, int *do_close_period,
 		ret = recvfrom(fd, &frame, sizeof(struct can_frame),
 			       0, (struct sockaddr *)&can_addr, &addr_len);
 		if (ret < 0) {
-			LOG_ERR("[%d] Cannot receive CAN message (%d)", fd,
+			printk("[%d] Cannot receive CAN message (%d)", fd,
 				-errno);
 			continue;
 		}
 
 		can_copy_frame_to_zframe(&frame, &msg);
 
-		LOG_INF("[%d] CAN msg: type 0x%x RTR 0x%x EID 0x%x DLC 0x%x",
+		printk("[%d] CAN msg: type 0x%x RTR 0x%x EID 0x%x DLC 0x%x",
 			fd, msg.id_type, msg.rtr, msg.std_id, msg.dlc);
 
 		if (!msg.rtr) {
@@ -138,7 +141,7 @@ static void rx(int *can_fd, int *do_close_period,
 
 			LOG_HEXDUMP_INF(data, msg.dlc, "Data");
 		} else {
-			LOG_INF("[%d] EXT Remote message received", fd);
+			printk("[%d] EXT Remote message received", fd);
 		}
 
 		if (POINTER_TO_INT(do_close_period) > 0) {
@@ -150,7 +153,7 @@ static void rx(int *can_fd, int *do_close_period,
 
 				fd = create_socket(filter);
 				if (fd < 0) {
-					LOG_ERR("Cannot get socket (%d)",
+					printk("Cannot get socket (%d)",
 						-errno);
 					return;
 				}
@@ -172,14 +175,14 @@ static int setup_socket(void)
 
 	iface = net_if_get_first_by_type(&NET_L2_GET_NAME(CANBUS_RAW));
 	if (!iface) {
-		LOG_ERR("No CANBUS network interface found!");
+		printk("No CANBUS network interface found!");
 		return -ENOENT;
 	}
 
 	fd = socket(AF_CAN, SOCK_RAW, CAN_RAW);
 	if (fd < 0) {
 		ret = -errno;
-		LOG_ERR("Cannot create %s CAN socket (%d)", "1st", ret);
+		printk("Cannot create %s CAN socket (%d)", "1st", ret);
 		return ret;
 	}
 
@@ -189,7 +192,7 @@ static int setup_socket(void)
 	ret = bind(fd, (struct sockaddr *)&can_addr, sizeof(can_addr));
 	if (ret < 0) {
 		ret = -errno;
-		LOG_ERR("Cannot bind %s CAN socket (%d)", "1st", ret);
+		printk("Cannot bind %s CAN socket (%d)", "1st", ret);
 		goto cleanup;
 	}
 
@@ -197,7 +200,7 @@ static int setup_socket(void)
 			 sizeof(filter));
 	if (ret < 0) {
 		ret = -errno;
-		LOG_ERR("Cannot set CAN sockopt (%d)", ret);
+		printk("Cannot set CAN sockopt (%d)", ret);
 		goto cleanup;
 	}
 
@@ -205,17 +208,17 @@ static int setup_socket(void)
 	tx_tid = k_thread_create(&tx_data, tx_stack,
 				 K_THREAD_STACK_SIZEOF(tx_stack),
 				 (k_thread_entry_t)tx, INT_TO_POINTER(fd),
-				 NULL, NULL, PRIORITY, 0, K_SECONDS(1));
+				 NULL, NULL, PRIORITY, 0, K_SECONDS(5));
 	if (!tx_tid) {
 		ret = -ENOENT;
 		errno = -ret;
-		LOG_ERR("Cannot create TX thread!");
+		printk("Cannot create TX thread!");
 		goto cleanup;
 	}
 
-	LOG_DBG("Started socket CAN TX thread");
+	printk("Started socket CAN TX thread\n");
 
-	LOG_INF("1st RX fd %d", fd);
+	printk("1st RX fd %d\n", fd);
 
 	rx_fd = fd;
 
@@ -231,13 +234,13 @@ static int setup_socket(void)
 		if (!rx_tid) {
 			ret = -ENOENT;
 			errno = -ret;
-			LOG_ERR("Cannot create 2nd RX thread!");
+			printk("Cannot create 2nd RX thread!");
 			goto cleanup2;
 		}
 
-		LOG_INF("2nd RX fd %d", fd);
+		printk("2nd RX fd %d", fd);
 	} else {
-		LOG_ERR("2nd RX not created (%d)", fd);
+		printk("2nd RX not created (%d)", fd);
 	}
 #endif
 
@@ -255,16 +258,22 @@ cleanup:
 
 void main(void)
 {
+    printk("Running app with board: %s\n", CONFIG_BOARD);
+
 	int fd;
 
 	/* Let the device start before doing anything */
 	k_sleep(K_SECONDS(2));
 
 	fd = setup_socket();
+
+    printk("\ncan fd: %d\n", fd);
+
 	if (fd < 0) {
-		LOG_ERR("Cannot start CAN application (%d)", fd);
+		printk("Cannot start CAN application (%d)", fd);
 		return;
 	}
 
+    printk("now setup rx (%d)", fd);
 	rx(INT_TO_POINTER(fd), NULL, NULL);
 }

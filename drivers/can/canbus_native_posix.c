@@ -322,12 +322,18 @@ static int socket_can_init_1(struct device *dev)
 	return 0;
 }
 
+// NET_DEVICE_INIT(socket_can_native_posix_1,
+// 		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
+// 		device_pm_control_nop, &canbus_context_data, NULL,
+// 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_L2,
+// 		NET_L2_GET_CTX_TYPE(CANBUS_L2), CAN_MTU);
+        
 NET_DEVICE_INIT(socket_can_native_posix_1,
-		CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
+		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
 		device_pm_control_nop, &canbus_context_data, NULL,
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_L2,
-		NET_L2_GET_CTX_TYPE(CANBUS_L2), CAN_MTU);
-
+		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_RAW_L2,
+		NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
+        
 #endif /* CONFIG_NET_SOCKETS_CAN */
 
 #endif /* CONFIG_CAN_NATIVE_POSIX_INTERFACE_1 */
