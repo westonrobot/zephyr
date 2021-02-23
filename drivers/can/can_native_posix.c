@@ -32,21 +32,21 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <net/can.h>
 #include <net/socket_can.h>
 
-#include "canbus_native_posix_priv.h"
+#include "can_native_posix_priv.h"
 
 #define NET_BUF_TIMEOUT K_MSEC(100)
 #define DT_CAN_1_NAME "CAN_1"
 
 struct canbus_np_context {
-	uint8_t recv[CAN_MTU];
-    struct can_frame frame;
-
 	struct device *can_dev;
 	struct k_msgq *msgq;
 	struct net_if *iface;
 	const char *if_name;
+
 	int dev_fd;
 	bool init_done;
+
+	struct can_frame frame;
 };
 
 K_KERNEL_STACK_DEFINE(canbus_rx_stack,
@@ -61,20 +61,21 @@ static int read_data(struct canbus_np_context *ctx, int fd)
 	struct net_pkt *pkt;
 	int count;
 
-	count = canbus_np_read_data(fd, (void*)(&ctx->frame), sizeof(ctx->frame));
+	count = canbus_np_read_data(fd, (void *)(&ctx->frame),
+				    sizeof(ctx->frame));
 	if (count <= 0) {
 		return 0;
 	}
 
-    struct zcan_frame zframe;
-    can_copy_frame_to_zframe(&ctx->frame, &zframe);
-	pkt = net_pkt_rx_alloc_with_buffer(ctx->iface, sizeof(zframe), AF_CAN, 0,
-					   NET_BUF_TIMEOUT);
+	struct zcan_frame zframe;
+	can_copy_frame_to_zframe(&ctx->frame, &zframe);
+	pkt = net_pkt_rx_alloc_with_buffer(ctx->iface, sizeof(zframe), AF_CAN,
+					   0, NET_BUF_TIMEOUT);
 	if (!pkt) {
 		return -ENOMEM;
 	}
 
-	if (net_pkt_write(pkt, (void*)(&zframe), sizeof(zframe))) {
+	if (net_pkt_write(pkt, (void *)(&zframe), sizeof(zframe))) {
 		net_pkt_unref(pkt);
 		return -ENOBUFS;
 	}
@@ -165,15 +166,15 @@ static int canbus_np_send(const struct device *dev,
 	return ret < 0 ? ret : 0;
 }
 
-static int canbus_np_attach_msgq(const struct device *dev, struct k_msgq *msgq,
-				 const struct zcan_filter *filter)
-{
-	ARG_UNUSED(dev);
-	ARG_UNUSED(msgq);
-	ARG_UNUSED(filter);
+// static int canbus_np_attach_msgq(const struct device *dev, struct k_msgq *msgq,
+// 				 const struct zcan_filter *filter)
+// {
+// 	ARG_UNUSED(dev);
+// 	ARG_UNUSED(msgq);
+// 	ARG_UNUSED(filter);
 
-	return 0;
-}
+// 	return 0;
+// }
 
 static int canbus_np_attach_isr(const struct device *dev, can_rx_callback_t isr,
 				void *callback_arg,
@@ -317,7 +318,7 @@ static int socket_can_init_1(struct device *dev)
 
 	// LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
 	// 	dev->config->name, can_dev, can_dev->config->name);
-    LOG_DBG("Init socket CAN device: vcan0");
+	LOG_DBG("Init socket CAN device: vcan0");
 
 	socket_context->can_dev = can_dev;
 	socket_context->msgq = &socket_can_msgq;
@@ -325,18 +326,12 @@ static int socket_can_init_1(struct device *dev)
 	return 0;
 }
 
-// NET_DEVICE_INIT(socket_can_native_posix_1,
-// 		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
-// 		device_pm_control_nop, &canbus_context_data, NULL,
-// 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_L2,
-// 		NET_L2_GET_CTX_TYPE(CANBUS_L2), CAN_MTU);
-        
 NET_DEVICE_INIT(socket_can_native_posix_1,
-		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME, socket_can_init_1,
-		device_pm_control_nop, &canbus_context_data, NULL,
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api, CANBUS_RAW_L2,
-		NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
-        
+		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME,
+		socket_can_init_1, device_pm_control_nop, &canbus_context_data,
+		NULL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api,
+		CANBUS_RAW_L2, NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
+
 #endif /* CONFIG_NET_SOCKETS_CAN */
 
 #endif /* CONFIG_CAN_NATIVE_POSIX_INTERFACE_1 */
