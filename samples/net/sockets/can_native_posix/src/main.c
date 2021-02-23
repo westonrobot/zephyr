@@ -36,7 +36,25 @@ static const struct zcan_filter zfilter = {
 
 static struct can_filter filter;
 
-static int create_socket()
+struct net_if *net_if_get_second_by_type(const struct net_l2 *l2)
+{
+	int count = 0;
+	Z_STRUCT_SECTION_FOREACH(net_if, iface)
+	{
+		if (IS_ENABLED(CONFIG_NET_OFFLOAD) && !l2 &&
+		    net_if_offload(iface)) {
+			return iface;
+		}
+		if (net_if_l2(iface) == l2) {
+			if (count++ == 1)
+				return iface;
+		}
+	}
+
+	return NULL;
+}
+
+static int create_socket(int i)
 {
 	struct sockaddr_can can_addr;
 	int fd, ret;
@@ -47,8 +65,12 @@ static int create_socket()
 		return fd;
 	}
 
-	struct net_if *iface =
-		net_if_get_first_by_type(&NET_L2_GET_NAME(CANBUS_RAW));
+	struct net_if *iface;
+	if (i == 0) {
+		iface = net_if_get_first_by_type(&NET_L2_GET_NAME(CANBUS_RAW));
+	} else {
+		iface = net_if_get_second_by_type(&NET_L2_GET_NAME(CANBUS_RAW));
+	}
 	if (!iface) {
 		printk("ERROR: No CANBUS network interface found!\n");
 		return -ENOENT;
@@ -148,41 +170,40 @@ static void rx_task(int *can_fd, int *do_close_period,
 			printk("INFO: [%d] EXT Remote message received\n", fd);
 		}
 
-		if (POINTER_TO_INT(do_close_period) > 0) {
-			close_period--;
-			if (close_period <= 0) {
-				(void)close(fd);
+		// if (POINTER_TO_INT(do_close_period) > 0) {
+		// 	close_period--;
+		// 	if (close_period <= 0) {
+		// 		(void)close(fd);
 
-				k_sleep(K_SECONDS(1));
+		// 		k_sleep(K_SECONDS(1));
 
-				fd = create_socket(filter);
-				if (fd < 0) {
-					printk("ERROR: Cannot get socket (%d)\n",
-					       -errno);
-					return;
-				}
+		// 		fd = create_socket(filter);
+		// 		if (fd < 0) {
+		// 			printk("ERROR: Cannot get socket (%d)\n",
+		// 			       -errno);
+		// 			return;
+		// 		}
 
-				close_period = POINTER_TO_INT(do_close_period);
-			}
-		}
+		// 		close_period = POINTER_TO_INT(do_close_period);
+		// 	}
+		// }
 	}
 }
 
-int setup_tx_task()
+int setup_tx_task(int i)
 {
 	int ret = -1;
 
-	int fd = create_socket();
+	int fd = create_socket(i);
 	if (fd < 0) {
 		printk("Failed to create socket for tx task (%d)\n", fd);
 		return -1;
 	}
 
-	/* Delay TX startup so that RX is ready to receive */
 	tx_tid = k_thread_create(&tx_data, tx_stack,
 				 K_THREAD_STACK_SIZEOF(tx_stack),
 				 (k_thread_entry_t)tx_task, INT_TO_POINTER(fd),
-				 NULL, NULL, PRIORITY, 0, K_SECONDS(2));
+				 NULL, NULL, PRIORITY, 0, K_NO_WAIT);
 	if (!tx_tid) {
 		ret = -ENOENT;
 		errno = -ret;
@@ -195,11 +216,11 @@ int setup_tx_task()
 	return 0;
 }
 
-int setup_rx_task()
+int setup_rx_task(int i)
 {
 	int ret = -1;
 
-	int fd = create_socket();
+	int fd = create_socket(i);
 	if (fd < 0) {
 		printk("Failed to create socket for rx task (%d)\n", fd);
 		return -1;
@@ -241,6 +262,7 @@ void main(void)
 	k_sleep(K_SECONDS(2));
 
 	/* Create TX and RX tasks */
-	setup_tx_task();
-	setup_rx_task();
+	(void)setup_tx_task(0);
+	(void)setup_rx_task(0);
+	(void)setup_tx_task(1);
 }
