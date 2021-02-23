@@ -16,14 +16,6 @@ LOG_MODULE_REGISTER(net_socket_can_sample, LOG_LEVEL_DBG);
 #define STACKSIZE 1024
 #define SLEEP_PERIOD K_SECONDS(1)
 
-static k_tid_t tx_tid;
-static K_THREAD_STACK_DEFINE(tx_stack, STACKSIZE);
-static struct k_thread tx_data;
-
-static k_tid_t rx_tid;
-static K_THREAD_STACK_DEFINE(rx_stack, STACKSIZE);
-static struct k_thread rx_data;
-
 #define CLOSE_PERIOD 15
 
 static const struct zcan_filter zfilter = {
@@ -190,21 +182,29 @@ static void rx_task(int *can_fd, int *do_close_period,
 	}
 }
 
-int setup_tx_task(int i)
+static k_tid_t tx_tid1;
+static K_THREAD_STACK_DEFINE(tx_stack1, STACKSIZE);
+static struct k_thread tx_data1;
+
+static k_tid_t tx_tid2;
+static K_THREAD_STACK_DEFINE(tx_stack2, STACKSIZE);
+static struct k_thread tx_data2;
+
+int setup_tx_task1()
 {
 	int ret = -1;
 
-	int fd = create_socket(i);
+	int fd = create_socket(0);
 	if (fd < 0) {
 		printk("Failed to create socket for tx task (%d)\n", fd);
 		return -1;
 	}
 
-	tx_tid = k_thread_create(&tx_data, tx_stack,
-				 K_THREAD_STACK_SIZEOF(tx_stack),
-				 (k_thread_entry_t)tx_task, INT_TO_POINTER(fd),
-				 NULL, NULL, PRIORITY, 0, K_NO_WAIT);
-	if (!tx_tid) {
+	tx_tid1 = k_thread_create(&tx_data1, tx_stack1,
+				  K_THREAD_STACK_SIZEOF(tx_stack1),
+				  (k_thread_entry_t)tx_task, INT_TO_POINTER(fd),
+				  NULL, NULL, PRIORITY, 0, K_NO_WAIT);
+	if (!tx_tid1) {
 		ret = -ENOENT;
 		errno = -ret;
 		printk("Cannot create TX thread!\n");
@@ -216,11 +216,45 @@ int setup_tx_task(int i)
 	return 0;
 }
 
-int setup_rx_task(int i)
+int setup_tx_task2()
 {
 	int ret = -1;
 
-	int fd = create_socket(i);
+	int fd = create_socket(1);
+	if (fd < 0) {
+		printk("Failed to create socket for tx task (%d)\n", fd);
+		return -1;
+	}
+
+	tx_tid2 = k_thread_create(&tx_data2, tx_stack2,
+				  K_THREAD_STACK_SIZEOF(tx_stack2),
+				  (k_thread_entry_t)tx_task, INT_TO_POINTER(fd),
+				  NULL, NULL, PRIORITY, 0, K_NO_WAIT);
+	if (!tx_tid2) {
+		ret = -ENOENT;
+		errno = -ret;
+		printk("Cannot create TX thread!\n");
+		(void)close(fd);
+	}
+
+	printk("Started socket CAN TX thread\n");
+
+	return 0;
+}
+
+static k_tid_t rx_tid1;
+static K_THREAD_STACK_DEFINE(rx_stack1, STACKSIZE);
+static struct k_thread rx_data1;
+
+static k_tid_t rx_tid2;
+static K_THREAD_STACK_DEFINE(rx_stack2, STACKSIZE);
+static struct k_thread rx_data2;
+
+int setup_rx_task1()
+{
+	int ret = -1;
+
+	int fd = create_socket(0);
 	if (fd < 0) {
 		printk("Failed to create socket for rx task (%d)\n", fd);
 		return -1;
@@ -237,12 +271,50 @@ int setup_rx_task(int i)
 		return ret;
 	}
 
-	rx_tid = k_thread_create(&rx_data, rx_stack,
-				 K_THREAD_STACK_SIZEOF(rx_stack),
-				 (k_thread_entry_t)rx_task, INT_TO_POINTER(fd),
-				 INT_TO_POINTER(CLOSE_PERIOD), &filter,
-				 PRIORITY, 0, K_NO_WAIT);
-	if (!rx_tid) {
+	rx_tid1 = k_thread_create(&rx_data1, rx_stack1,
+				  K_THREAD_STACK_SIZEOF(rx_stack1),
+				  (k_thread_entry_t)rx_task, INT_TO_POINTER(fd),
+				  INT_TO_POINTER(CLOSE_PERIOD), &filter,
+				  PRIORITY, 0, K_NO_WAIT);
+	if (!rx_tid1) {
+		ret = -ENOENT;
+		errno = -ret;
+		printk("Cannot create RX thread!\n");
+		(void)close(fd);
+	}
+
+	printk("Started socket CAN RX thread\n");
+
+	return 0;
+}
+
+int setup_rx_task2()
+{
+	int ret = -1;
+
+	int fd = create_socket(1);
+	if (fd < 0) {
+		printk("Failed to create socket for rx task (%d)\n", fd);
+		return -1;
+	}
+
+	// set filter
+	can_copy_zfilter_to_filter(&zfilter, &filter);
+	ret = setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
+			 sizeof(filter));
+	if (ret < 0) {
+		ret = -errno;
+		printk("ERROR: Cannot set CAN sockopt (%d)\n", ret);
+		close(fd);
+		return ret;
+	}
+
+	rx_tid2 = k_thread_create(&rx_data2, rx_stack2,
+				  K_THREAD_STACK_SIZEOF(rx_stack2),
+				  (k_thread_entry_t)rx_task, INT_TO_POINTER(fd),
+				  INT_TO_POINTER(CLOSE_PERIOD), &filter,
+				  PRIORITY, 0, K_NO_WAIT);
+	if (!rx_tid2) {
 		ret = -ENOENT;
 		errno = -ret;
 		printk("Cannot create RX thread!\n");
@@ -262,7 +334,8 @@ void main(void)
 	k_sleep(K_SECONDS(2));
 
 	/* Create TX and RX tasks */
-	(void)setup_tx_task(0);
-	(void)setup_rx_task(0);
-	(void)setup_tx_task(1);
+	(void)setup_tx_task1();
+	(void)setup_tx_task2();
+	(void)setup_rx_task1();
+	(void)setup_rx_task2();
 }
