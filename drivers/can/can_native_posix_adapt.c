@@ -41,7 +41,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #include <zephyr/types.h>
 
-#include "canbus_native_posix_priv.h"
+#include "can_native_posix_priv.h"
 
 int canbus_np_iface_open(const char *if_name)
 {

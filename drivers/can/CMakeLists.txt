@@ -16,7 +16,7 @@ if(CONFIG_CAN_NATIVE_POSIX)
 	zephyr_library_compile_definitions(NO_POSIX_CHEATS)
 	zephyr_library_compile_definitions(_DEFAULT_SOURCE)
 	zephyr_library_sources(
-		canbus_native_posix.c
-		canbus_native_posix_adapt.c
+		can_native_posix.c
+		can_native_posix_adapt.c
 		)
 endif()
