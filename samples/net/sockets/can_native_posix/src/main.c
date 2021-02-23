@@ -36,7 +36,7 @@ static const struct zcan_filter zfilter = {
 
 static struct can_filter filter;
 
-static int create_socket(const struct can_filter *filter)
+static int create_socket()
 {
 	struct sockaddr_can can_addr;
 	int fd, ret;
@@ -62,15 +62,6 @@ static int create_socket(const struct can_filter *filter)
 		printk("ERROR: Cannot bind %s CAN socket (%d)\n", "2nd",
 		       -errno);
 		(void)close(fd);
-		return ret;
-	}
-
-	ret = setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, filter,
-			 sizeof(*filter));
-	if (ret < 0) {
-		ret = -errno;
-		printk("ERROR: Cannot set CAN sockopt (%d)\n", ret);
-		close(fd);
 		return ret;
 	}
 
@@ -177,11 +168,11 @@ static void rx_task(int *can_fd, int *do_close_period,
 	}
 }
 
-int setup_tx_task(const struct can_filter *filter)
+int setup_tx_task()
 {
 	int ret = -1;
 
-	int fd = create_socket(filter);
+	int fd = create_socket();
 	if (fd < 0) {
 		printk("Failed to create socket for tx task (%d)\n", fd);
 		return -1;
@@ -204,14 +195,25 @@ int setup_tx_task(const struct can_filter *filter)
 	return 0;
 }
 
-int setup_rx_task(const struct can_filter *filter)
+int setup_rx_task()
 {
 	int ret = -1;
 
-	int fd = create_socket(filter);
+	int fd = create_socket();
 	if (fd < 0) {
 		printk("Failed to create socket for rx task (%d)\n", fd);
 		return -1;
+	}
+
+	// set filter
+	can_copy_zfilter_to_filter(&zfilter, &filter);
+	ret = setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, &filter,
+			 sizeof(filter));
+	if (ret < 0) {
+		ret = -errno;
+		printk("ERROR: Cannot set CAN sockopt (%d)\n", ret);
+		close(fd);
+		return ret;
 	}
 
 	rx_tid = k_thread_create(&rx_data, rx_stack,
@@ -239,7 +241,6 @@ void main(void)
 	k_sleep(K_SECONDS(2));
 
 	/* Create TX and RX tasks */
-	can_copy_zfilter_to_filter(&zfilter, &filter);
-	setup_tx_task(&filter);
-	setup_rx_task(&filter);
+	setup_tx_task();
+	setup_rx_task();
 }

@@ -35,10 +35,9 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include "can_native_posix_priv.h"
 
 #define NET_BUF_TIMEOUT K_MSEC(100)
-#define DT_CAN_1_NAME "CAN_1"
 
 struct canbus_np_context {
-	struct device *can_dev;
+	const struct device *can_dev;
 	struct k_msgq *msgq;
 	struct net_if *iface;
 	const char *if_name;
@@ -48,13 +47,6 @@ struct canbus_np_context {
 
 	struct can_frame frame;
 };
-
-K_KERNEL_STACK_DEFINE(canbus_rx_stack,
-		      CONFIG_ARCH_POSIX_RECOMMENDED_STACK_SIZE);
-static struct k_thread rx_thread_data;
-
-/* TODO: support multiple interfaces */
-static struct canbus_np_context canbus_context_data;
 
 static int read_data(struct canbus_np_context *ctx, int fd)
 {
@@ -105,15 +97,13 @@ static void canbus_np_rx(struct canbus_np_context *ctx)
 	}
 }
 
-static void create_rx_handler(struct canbus_np_context *ctx)
-{
-	k_thread_create(&rx_thread_data, canbus_rx_stack,
-			K_THREAD_STACK_SIZEOF(canbus_rx_stack),
-			(k_thread_entry_t)canbus_np_rx, ctx, NULL, NULL,
-			K_PRIO_COOP(14), 0, K_NO_WAIT);
-}
+#ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_1
+K_KERNEL_STACK_DEFINE(canbus_rx_stack1,
+		      CONFIG_ARCH_POSIX_RECOMMENDED_STACK_SIZE);
+static struct k_thread rx_thread_data1;
+static struct canbus_np_context canbus_context_data1;
 
-static int canbus_np_init(struct device *dev)
+static int canbus_np1_init(const struct device *dev)
 {
 	struct canbus_np_context *ctx = dev->data;
 
@@ -124,11 +114,42 @@ static int canbus_np_init(struct device *dev)
 		LOG_ERR("Cannot open %s (%d)", ctx->if_name, ctx->dev_fd);
 	} else {
 		/* Create a thread that will handle incoming data from host */
-		create_rx_handler(ctx);
+		k_thread_create(&rx_thread_data1, canbus_rx_stack1,
+				K_THREAD_STACK_SIZEOF(canbus_rx_stack1),
+				(k_thread_entry_t)canbus_np_rx, ctx, NULL, NULL,
+				K_PRIO_COOP(14), 0, K_NO_WAIT);
 	}
 
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_2
+K_KERNEL_STACK_DEFINE(canbus_rx_stack2,
+		      CONFIG_ARCH_POSIX_RECOMMENDED_STACK_SIZE);
+static struct k_thread rx_thread_data2;
+static struct canbus_np_context canbus_context_data2;
+
+static int canbus_np2_init(const struct device *dev)
+{
+	struct canbus_np_context *ctx = dev->data;
+
+	ctx->if_name = CONFIG_CAN_NATIVE_POSIX_INTERFACE_2_NAME;
+
+	ctx->dev_fd = canbus_np_iface_open(ctx->if_name);
+	if (ctx->dev_fd < 0) {
+		LOG_ERR("Cannot open %s (%d)", ctx->if_name, ctx->dev_fd);
+	} else {
+		/* Create a thread that will handle incoming data from host */
+		k_thread_create(&rx_thread_data2, canbus_rx_stack2,
+				K_THREAD_STACK_SIZEOF(canbus_rx_stack2),
+				(k_thread_entry_t)canbus_np_rx, ctx, NULL, NULL,
+				K_PRIO_COOP(14), 0, K_NO_WAIT);
+	}
+
+	return 0;
+}
+#endif
 
 static int canbus_np_runtime_configure(const struct device *dev,
 				       enum can_mode mode, uint32_t bitrate)
@@ -166,15 +187,17 @@ static int canbus_np_send(const struct device *dev,
 	return ret < 0 ? ret : 0;
 }
 
-// static int canbus_np_attach_msgq(const struct device *dev, struct k_msgq *msgq,
-// 				 const struct zcan_filter *filter)
-// {
-// 	ARG_UNUSED(dev);
-// 	ARG_UNUSED(msgq);
-// 	ARG_UNUSED(filter);
+/*
+static int canbus_np_attach_msgq(const struct device *dev, struct k_msgq *msgq,
+				 const struct zcan_filter *filter)
+{
+	ARG_UNUSED(dev);
+	ARG_UNUSED(msgq);
+	ARG_UNUSED(filter);
 
-// 	return 0;
-// }
+	return 0;
+}
+*/
 
 static int canbus_np_attach_isr(const struct device *dev, can_rx_callback_t isr,
 				void *callback_arg,
@@ -219,19 +242,26 @@ static const struct can_driver_api can_api_funcs = {
 };
 
 #ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_1
-
 DEVICE_AND_API_INIT(canbus_np_1, CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_NAME,
-		    canbus_np_init, &canbus_context_data, NULL, POST_KERNEL,
+		    canbus_np1_init, &canbus_context_data1, NULL, POST_KERNEL,
 		    CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &can_api_funcs);
+#endif
+
+#ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_2
+DEVICE_AND_API_INIT(canbus_np_2, CONFIG_CAN_NATIVE_POSIX_INTERFACE_2_NAME,
+		    canbus_np2_init, &canbus_context_data2, NULL, POST_KERNEL,
+		    CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &can_api_funcs);
+#endif
+
+#if defined(CONFIG_CAN_NATIVE_POSIX_INTERFACE_1) ||                            \
+	defined(CONFIG_CAN_NATIVE_POSIX_INTERFACE_2)
 
 #if defined(CONFIG_NET_SOCKETS_CAN)
 
-#define SOCKET_CAN_NAME_1 "SOCKET_CAN_1"
+// #include "socket_can_native_posix.h"
+
 #define SEND_TIMEOUT K_MSEC(100)
 #define BUF_ALLOC_TIMEOUT K_MSEC(50)
-
-/* TODO: make msgq size configurable */
-CAN_DEFINE_MSGQ(socket_can_msgq, 5);
 
 static void socket_can_iface_init(struct net_if *iface)
 {
@@ -311,26 +341,82 @@ static struct canbus_api socket_can_api = {
 	.setsockopt = socket_can_setsockopt,
 };
 
-static int socket_can_init_1(struct device *dev)
+#ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_1
+// static struct socket_can_context socket_can_context_1;
+static int socket_can_init_1(const struct device *dev)
 {
 	const struct device *can_dev = DEVICE_GET(canbus_np_1);
-	struct canbus_np_context *socket_context = dev->data;
+    struct canbus_np_context *socket_context = dev->data;
+	// struct canbus_np_context *driver_context = can_dev->data;
+	// struct socket_can_context *socket_context = dev->data;
 
-	// LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
-	// 	dev->config->name, can_dev, can_dev->config->name);
-	LOG_DBG("Init socket CAN device: vcan0");
+	LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
+		dev->name, can_dev, can_dev->name);
 
 	socket_context->can_dev = can_dev;
-	socket_context->msgq = &socket_can_msgq;
+    printk("dev fd: %d\n", socket_context->dev_fd);
+	// socket_context->dev_fd = driver_context->dev_fd;
+	// printk("dev fd: %d\n", driver_context->dev_fd);
 
 	return 0;
 }
 
 NET_DEVICE_INIT(socket_can_native_posix_1,
 		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME,
-		socket_can_init_1, device_pm_control_nop, &canbus_context_data,
+		socket_can_init_1, device_pm_control_nop, &canbus_context_data1,
 		NULL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api,
 		CANBUS_RAW_L2, NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
+
+// static int socket_can_init_1(const struct device *dev)
+// {
+// 	const struct device *can_dev = DEVICE_GET(canbus_np_1);
+//     struct canbus_np_context *socket_context = dev->data;
+// 	// struct canbus_np_context *driver_context = can_dev->data;
+// 	// struct socket_can_context *socket_context = dev->data;
+
+// 	LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
+// 		dev->name, can_dev, can_dev->name);
+
+// 	socket_context->can_dev = can_dev;
+//     printk("dev fd: %d\n", socket_context->dev_fd);
+// 	// socket_context->dev_fd = driver_context->dev_fd;
+// 	// printk("dev fd: %d\n", driver_context->dev_fd);
+
+// 	return 0;
+// }
+
+// NET_DEVICE_INIT(socket_can_native_posix_1,
+// 		CONFIG_CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME,
+// 		socket_can_init_1, device_pm_control_nop, &canbus_context_data1,
+// 		NULL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api,
+// 		CANBUS_RAW_L2, NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
+#endif
+
+// #ifdef CONFIG_CAN_NATIVE_POSIX_INTERFACE_2
+// /* TODO: make msgq size configurable */
+// /* Note: queue created but not used */
+// // CAN_DEFINE_MSGQ(socket_can_msgq2, 5);
+
+// static int socket_can_init_2(const struct device *dev)
+// {
+// 	const struct device *can_dev = DEVICE_GET(canbus_np_2);
+// 	struct canbus_np_context *socket_context = dev->data;
+
+// 	LOG_DBG("Init socket CAN device %p (%s) for dev %p (%s)", dev,
+// 		dev->name, can_dev, can_dev->name);
+
+// 	socket_context->can_dev = can_dev;
+// 	socket_context->msgq = &socket_can_msgq;
+
+// 	return 0;
+// }
+
+// NET_DEVICE_INIT(socket_can_native_posix_2,
+// 		CONFIG_CAN_NATIVE_POSIX_INTERFACE_2_SOCKETCAN_NAME,
+// 		socket_can_init_2, device_pm_control_nop, &canbus_context_data2,
+// 		NULL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &socket_can_api,
+// 		CANBUS_RAW_L2, NET_L2_GET_CTX_TYPE(CANBUS_RAW_L2), CAN_MTU);
+// #endif /* CONFIG_CAN_NATIVE_POSIX_INTERFACE_2 */
 
 #endif /* CONFIG_NET_SOCKETS_CAN */
 
