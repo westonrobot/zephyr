@@ -79,19 +79,16 @@ static int read_data(struct canbus_np_context *ctx, int fd)
 
 static void canbus_np_rx(struct canbus_np_context *ctx)
 {
-	int ret;
-
 	LOG_DBG("Starting ZCAN RX thread");
 
 	while (1) {
 		if (ctx->iface && net_if_is_up(ctx->iface)) {
-			ret = canbus_np_wait_data(ctx->dev_fd);
-			if (!ret) {
+			while (!canbus_np_wait_data(ctx->dev_fd)) {
 				read_data(ctx, ctx->dev_fd);
 			}
 		}
 
-		k_sleep(K_MSEC(50));
+		k_sleep(K_MSEC(10));
 	}
 }
 
