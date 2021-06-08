@@ -48,7 +48,7 @@ config CAN_NATIVE_POSIX_INTERFACE_1_SOCKETCAN_NAME
 ## Interface 2
 config CAN_NATIVE_POSIX_INTERFACE_2_ENABLE
 	bool "CANBUS interface 2"
-    default y
+    default n
   	depends on CAN_NATIVE_POSIX
 	help
 	  This option enables the CANBUS network interface for Native POSIX board.
