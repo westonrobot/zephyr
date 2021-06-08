@@ -1223,7 +1223,7 @@ static struct can_stm32_data can_stm32_dev_data_##inst;
 
 
 #define CAN_STM32_DEFINE_INST(inst)                                    \
-DEVICE_DT_INST_DEFINE(inst, &can_stm32_init, device_pm_control_nop,    \
+DEVICE_DT_INST_DEFINE(inst, &can_stm32_init, NULL,    \
 		    &can_stm32_dev_data_##inst, &can_stm32_cfg_##inst, \
 		    POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,   \
 		    &can_api_funcs);
