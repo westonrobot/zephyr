@@ -19,6 +19,21 @@
 			dma-requests= <107>;
 		};
 
+		can {
+			can2: can@4000a400 {
+				compatible = "st,stm32-fdcan";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x4000a400 0x400>, <0x4000b949 0xd48>;
+				reg-names = "m_can", "message_ram";
+				interrupts = <20 0>, <22 0>;
+				interrupt-names = "LINE_0", "LINE_1";
+				clocks = <&rcc STM32_CLOCK_BUS_APB1 0x02000000>;
+				status = "disabled";
+				label = "CAN_2";
+			};
+		};
+		
 		usbotg_fs: usb@40080000 {
 			compatible = "st,stm32-otgfs";
 			reg = <0x40080000 0x40000>;
