@@ -90,11 +90,18 @@ void can_mcan_configure_timing(struct can_mcan_reg  *can,
 				timing->prescaler > 0);
 		__ASSERT_NO_MSG(timing->sjw <= 0x80 && timing->sjw > 0);
 
-		can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL) & 0xFF) <<
+		// can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL) & 0xFF) <<
+		// 		CAN_MCAN_NBTP_NTSEG1_POS |
+		// 	    (((uint32_t)timing->phase_seg2 - 1UL) & 0x7F) <<
+		// 		CAN_MCAN_NBTP_NTSEG2_POS |
+		// 	    (((uint32_t)timing->prescaler  - 1UL) & 0x1FF) <<
+		// 		CAN_MCAN_NBTP_NBRP_POS;
+
+		can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL)) <<
 				CAN_MCAN_NBTP_NTSEG1_POS |
-			    (((uint32_t)timing->phase_seg2 - 1UL) & 0x7F) <<
+			    (((uint32_t)timing->phase_seg2 - 1UL)) <<
 				CAN_MCAN_NBTP_NTSEG2_POS |
-			    (((uint32_t)timing->prescaler  - 1UL) & 0x1FF) <<
+			    (((uint32_t)timing->prescaler  - 1UL)) <<
 				CAN_MCAN_NBTP_NBRP_POS;
 
 		if (timing->sjw == CAN_SJW_NO_CHANGE) {
@@ -242,6 +249,13 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 
 	/* Configuration Change Enable */
 	can->cccr |= CAN_MCAN_CCCR_CCE;
+	/* Enable auto retransmission */
+	can->cccr &= ~(CAN_MCAN_CCCR_DAR);
+
+	/* Disable Transmit pause feature */
+	can->cccr &= ~(CAN_MCAN_CCCR_TXP);
+	/* Disable Protocol Exception Handling */
+	can->cccr &= ~(CAN_MCAN_CCCR_PXHD);
 
 	LOG_DBG("IP rel: %lu.%lu.%lu %02lu.%lu.%lu",
 		(can->crel & CAN_MCAN_CREL_REL) >> CAN_MCAN_CREL_REL_POS,
@@ -253,20 +267,79 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 		(can->crel & CAN_MCAN_CREL_DAY) >> CAN_MCAN_CREL_DAY_POS);
 
 #ifdef CONFIG_CAN_STM32FD
-	can->sidfc = ((uint32_t)msg_ram->std_filt & CAN_MCAN_SIDFC_FLSSA_MSK) |
-		     (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
-	can->xidfc = ((uint32_t)msg_ram->ext_filt & CAN_MCAN_XIDFC_FLESA_MSK) |
-		     (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSS_POS);
-	can->rxf0c = ((uint32_t)msg_ram->rx_fifo0 & CAN_MCAN_RXF0C_F0SA) |
-		     (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
-	can->rxf1c = ((uint32_t)msg_ram->rx_fifo1 & CAN_MCAN_RXF1C_F1SA) |
-		     (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
-	can->rxbc = ((uint32_t)msg_ram->rx_buffer & CAN_MCAN_RXBC_RBSA);
-	can->txefc = ((uint32_t)msg_ram->tx_event_fifo & CAN_MCAN_TXEFC_EFSA_MSK) |
-		     (ARRAY_SIZE(msg_ram->tx_event_fifo) <<
-		     CAN_MCAN_TXEFC_EFS_POS);
-	can->txbc = ((uint32_t)msg_ram->tx_buffer & CAN_MCAN_TXBC_TBSA) |
-		    (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_TFQS_POS);
+	// something fishy here
+	uint32_t StartAdress;
+	// can->sidfc = ((uint32_t)msg_ram->std_filt & CAN_MCAN_SIDFC_FLSSA_MSK) |
+	// 	     (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
+	can->sidfc &= ~(CAN_MCAN_SIDFC_FLSSA_MSK);
+	StartAdress = 0;
+	can->sidfc |= (StartAdress << CAN_MCAN_SIDFC_FLSSA_POS);
+	can->sidfc &= ~(CAN_MCAN_SIDFC_LSS);
+	can->sidfc |= (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
+	StartAdress += ARRAY_SIZE(msg_ram->std_filt);
+
+	// can->xidfc = ((uint32_t)msg_ram->ext_filt & CAN_MCAN_XIDFC_FLESA_MSK) |
+	// 	     (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSS_POS);
+	can->xidfc &= ~(CAN_MCAN_XIDFC_FLESA_MSK); 
+	can->xidfc |= (StartAdress << CAN_MCAN_XIDFC_LSE_POS); 
+
+	can->xidfc &= ~(CAN_MCAN_XIDFC_LSE_MSK);
+	can->xidfc |= (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSE_POS);
+	StartAdress += (ARRAY_SIZE(msg_ram->ext_filt) * 2);
+
+	// can->rxf0c = ((uint32_t)msg_ram->rx_fifo0 & CAN_MCAN_RXF0C_F0SA) |
+	// 	     (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
+
+	can->rxf0c &= ~(CAN_MCAN_RXF0C_F0SA_MSK);
+	can->rxf0c |= (StartAdress << CAN_MCAN_RXF0C_F0SA_POS); 
+
+	can->rxf0c &= ~(CAN_MCAN_RXF0C_F0S_MSK);
+	can->rxf0c |= (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
+
+	// can->rxf1c = ((uint32_t)msg_ram->rx_fifo1 & CAN_MCAN_RXF1C_F1SA) |
+	// 	     (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
+	
+	StartAdress += (ARRAY_SIZE(msg_ram->rx_fifo0) * 4);		// 8 DATA
+	
+	can->rxf1c &= ~(CAN_MCAN_RXF1C_F1SA_MSK);
+	can->rxf1c |= (StartAdress << CAN_MCAN_RXF1C_F1SA_POS); 
+
+	can->rxf1c &= ~(CAN_MCAN_RXF1C_F1S_MSK);
+	can->rxf1c |= (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
+
+	StartAdress += (ARRAY_SIZE(msg_ram->rx_fifo1) * 4);		// 8 DATA
+
+	// can->rxbc = ((uint32_t)msg_ram->rx_buffer & CAN_MCAN_RXBC_RBSA);
+
+	can->rxbc &= ~(CAN_MCAN_RXBC_RBSA_MSK);
+	can->rxbc |= (StartAdress << CAN_MCAN_RXBC_RBSA_POS);
+
+	StartAdress += (ARRAY_SIZE(msg_ram->rx_buffer) * 4);		// 8 DATA
+
+	// can->txefc = ((uint32_t)msg_ram->tx_event_fifo & CAN_MCAN_TXEFC_EFSA_MSK) |
+	// 	     (ARRAY_SIZE(msg_ram->tx_event_fifo) <<
+	// 	     CAN_MCAN_TXEFC_EFS_POS);
+
+	can->txefc &= ~(CAN_MCAN_TXEFC_EFSA_MSK);
+	can->txefc |= (StartAdress << CAN_MCAN_TXEFC_EFSA_POS);
+
+	can->txefc &= ~(CAN_MCAN_TXEFC_EFS_MSK);
+	can->txefc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXEFC_EFS_POS);
+
+	StartAdress += (ARRAY_SIZE(msg_ram->tx_event_fifo) * 2);		// 8 DATA
+
+	// can->txbc = ((uint32_t)msg_ram->tx_buffer & CAN_MCAN_TXBC_TBSA) |
+	// 	    (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_TFQS_POS);
+
+	can->txbc &= ~(CAN_MCAN_TXBC_TBSA_MSK);
+	can->txefc |= (StartAdress << CAN_MCAN_TXBC_TBSA_POS);
+
+	can->txbc &= ~(CAN_MCAN_TXBC_NDTB_MSK);
+	can->txbc |= (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_NDTB_POS);
+
+	can->txbc &= ~(CAN_MCAN_TXBC_TFQS_MSK);
+	can->txbc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXBC_TFQS_POS);
+
 	if (sizeof(msg_ram->tx_buffer[0].data) <= 24) {
 		can->txesc = (sizeof(msg_ram->tx_buffer[0].data) - 8) / 4;
 	} else {
@@ -310,8 +383,13 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 	// 	      (CONFIG_CAN_MAX_EXT_ID_FILTER << CAN_MCAN_RXGFC_LSE_POS) |
 	// 	      (0x2 << CAN_MCAN_RXGFC_ANFS_POS) |
 	// 	      (0x2 << CAN_MCAN_RXGFC_ANFE_POS);
-	can->gfc |= (0x2 << 2) |
-		    (0x2 << 4);
+	can->gfc |= (CONFIG_CAN_MAX_STD_ID_FILTER << CAN_MCAN_RXGFC_RRFS_POS) |
+		      (CONFIG_CAN_MAX_EXT_ID_FILTER << CAN_MCAN_RXGFC_RRFE_POS) |
+		      (0x2 << CAN_MCAN_RXGFC_ANFS_POS) |
+		      (0x2 << CAN_MCAN_RXGFC_ANFE_POS);
+	// CAN_MCAN_RXGFC_RRFS_POS
+	// can->gfc |= (0x2 << 2) |
+	// 	    (0x2 << 4);
 #else
 	can->gfc |= (0x2 << CAN_MCAN_GFC_ANFE_POS) |
 		    (0x2 << CAN_MCAN_GFC_ANFS_POS);
@@ -379,8 +457,8 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 #endif
 	can->ile = CAN_MCAN_ILE_EINT0 | CAN_MCAN_ILE_EINT1;
 	/* Interrupt on every TX fifo element*/
-	can->txbtie = CAN_MCAN_TXBTIE_TIE;
-
+	// can->txbtie = CAN_MCAN_TXBTIE_TIE;
+	can->txbtie = 0;
 	ret = can_leave_init_mode(can, K_MSEC(CAN_INIT_TIMEOUT));
 	if (ret) {
 		LOG_ERR("Failed to leave init mode");
@@ -418,8 +496,9 @@ static void can_mcan_tc_event_handler(struct can_mcan_reg *can,
 	volatile struct can_mcan_tx_event_fifo *tx_event;
 	can_tx_callback_t tx_cb;
 	uint32_t event_idx, tx_idx;
-
+	LOG_DBG("Tc Event");
 	while (can->txefs & CAN_MCAN_TXEFS_EFFL) {
+			LOG_DBG("Tc Event2");
 		event_idx = (can->txefs & CAN_MCAN_TXEFS_EFGI) >>
 			    CAN_MCAN_TXEFS_EFGI_POS;
 		tx_event = &msg_ram->tx_event_fifo[event_idx];
@@ -431,8 +510,10 @@ static void can_mcan_tc_event_handler(struct can_mcan_reg *can,
 
 		tx_cb = data->tx_fin_cb[tx_idx];
 		if (tx_cb == NULL) {
+			LOG_DBG("Tx Fin Sem");
 			k_sem_give(&data->tx_fin_sem[tx_idx]);
 		} else {
+			LOG_DBG("TX Ok");
 			tx_cb(CAN_TX_OK, data->tx_fin_cb_arg[tx_idx]);
 		}
 	}
@@ -445,18 +526,22 @@ void can_mcan_line_0_isr(const struct can_mcan_config *cfg,
 	struct can_mcan_reg *can = cfg->can;
 
 	do {
+		LOG_DBG("First 0x%x", can->ir);
 		if (can->ir & (CAN_MCAN_IR_BO | CAN_MCAN_IR_EP |
 			       CAN_MCAN_IR_EW)) {
+			LOG_DBG("State changed");
 			can->ir = CAN_MCAN_IR_BO | CAN_MCAN_IR_EP |
 				  CAN_MCAN_IR_EW;
 			can_mcan_state_change_handler(cfg, data);
 		}
+		LOG_DBG("0x%lx", (CAN_MCAN_IR_BO | CAN_MCAN_IR_EP | CAN_MCAN_IR_EW));
+		LOG_DBG("0x%lx 0x%lx 0x%lx 0x%lx", CAN_MCAN_IR_BO, CAN_MCAN_IR_EP, CAN_MCAN_IR_EW, CAN_MCAN_IR_TEFN);
 		/* TX event FIFO new entry */
 		if (can->ir & CAN_MCAN_IR_TEFN) {
 			can->ir = CAN_MCAN_IR_TEFN;
 			can_mcan_tc_event_handler(can, msg_ram, data);
 		}
-
+		LOG_DBG("0x%x", can->ir);
 		if (can->ir & CAN_MCAN_IR_TEFL) {
 			can->ir = CAN_MCAN_IR_TEFL;
 			LOG_ERR("TX FIFO element lost");
@@ -533,12 +618,12 @@ static void can_mcan_get_message(struct can_mcan_data *data,
 			}
 
 			if (frame.id_type == CAN_STANDARD_IDENTIFIER) {
-				LOG_DBG("Frame on filter %d, ID: 0x%x",
+				LOG_DBG("Frame on filter %d, STANDARD_ID: 0x%x",
 					filt_idx, frame.id);
 				cb = data->rx_cb_std[filt_idx];
 				cb_arg = data->cb_arg_std[filt_idx];
 			} else {
-				LOG_DBG("Frame on filter %d, ID: 0x%x",
+				LOG_DBG("Frame on filter %d, EXTENDED_ID: 0x%x",
 					filt_idx + NUM_STD_FILTER_DATA,
 					frame.id);
 				cb = data->rx_cb_ext[filt_idx];

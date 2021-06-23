@@ -450,8 +450,8 @@
 			#size-cells = <1>;
 			std-filter-elements = <28>;
 			ext-filter-elements = <8>;
-			rx-fifo0-elements = <3>;
-			rx-fifo1-elements = <3>;
+			rx-fifo0-elements = <63>;
+			rx-fifo1-elements = <0>;
 			rx-buffer-elements = <0>;
 			tx-buffer-elements = <3>;
 			tx-event-fifo-elements = <3>;
