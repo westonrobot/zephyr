@@ -954,6 +954,24 @@
 #define CAN_MCAN_RXGFC_LSE_MSK       (0xFUL << CAN_MCAN_RXGFC_LSE_POS)
 #define CAN_MCAN_RXGFC_LSE           CAN_MCAN_RXGFC_LSE_MSK
 
+/*  Filter List Standard Start Address */
+#define CAN_MCAN_SIDFC_FLSSA_POS      (2U)
+#define CAN_MCAN_SIDFC_FLSSA_MSK      (0x3FFFUL << CAN_MCAN_SIDFC_FLSSA_POS)
+#define CAN_MCAN_SIDFC_FLSSA           CAN_MCAN_SIDFC_FLSSA_MSK
+/* List Size Standard */
+#define CAN_MCAN_SIDFC_LSS_POS      (16U)
+#define CAN_MCAN_SIDFC_LSS_MSK      (0xFFUL << CAN_MCAN_SIDFC_LSS_POS)
+#define CAN_MCAN_SIDFC_LSS          CAN_MCAN_SIDFC_LSS_MSK
+
+/*  Filter List Extended Start Address */
+#define CAN_MCAN_XIDFC_FLESA_POS      (2U)
+#define CAN_MCAN_XIDFC_FLESA_MSK      (0x3FFFUL << CAN_MCAN_XIDFC_FLESA_POS)
+#define CAN_MCAN_XIDFC_FLESA          CAN_MCAN_XIDFC_FLESA_MSK
+/* List Size Extended */
+#define CAN_MCAN_XIDFC_LSS_POS      (16U)
+#define CAN_MCAN_XIDFC_LSS_MSK      (0x7FUL << CAN_MCAN_XIDFC_LSS_POS)
+#define CAN_MCAN_XIDFC_LSS          CAN_MCAN_XIDFC_LSS_MSK
+
 #else /* CONFIG_CAN_STM32FD */
 
 /* Reject Remote Frames Extended */
@@ -1003,7 +1021,8 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Buffer Index */
 #define CAN_MCAN_HPMS_BIDX_POS       (0U)
-#define CAN_MCAN_HPMS_BIDX_MSK       (0x7UL << CAN_MCAN_HPMS_BIDX_POS)
+// #define CAN_MCAN_HPMS_BIDX_MSK       (0x7UL << CAN_MCAN_HPMS_BIDX_POS) 
+#define CAN_MCAN_HPMS_BIDX_MSK       (0x3FUL << CAN_MCAN_HPMS_BIDX_POS) 
 #define CAN_MCAN_HPMS_BIDX           CAN_MCAN_HPMS_BIDX_MSK
 /* Message Storage Indicator */
 #define CAN_MCAN_HPMS_MSI_POS        (6U)
@@ -1011,7 +1030,8 @@
 #define CAN_MCAN_HPMS_MSI            CAN_MCAN_HPMS_MSI_MSK
 /* Filter Index */
 #define CAN_MCAN_HPMS_FIDX_POS       (8U)
-#define CAN_MCAN_HPMS_FIDX_MSK       (0x1FUL << CAN_MCAN_HPMS_FIDX_POS)
+// #define CAN_MCAN_HPMS_FIDX_MSK       (0x1FUL << CAN_MCAN_HPMS_FIDX_POS)
+#define CAN_MCAN_HPMS_FIDX_MSK       (0x7FUL << CAN_MCAN_HPMS_FIDX_POS)
 #define CAN_MCAN_HPMS_FIDX           CAN_MCAN_HPMS_FIDX_MSK
 /* Filter List  */
 #define CAN_MCAN_HPMS_FLST_POS       (15U)
@@ -1038,7 +1058,7 @@
 #define CAN_MCAN_HPMS_FLST           CAN_MCAN_HPMS_FLST_MSK
 
 #endif /* CONFIG_CAN_STM32FD */
-
+/*****************  Bit definition for FDCAN_NDAT1 register??  ********************/
 /***************  Bit definition for CAN_MCAN_RXF0C register  *****************/
 /* Rx FIFO 0 Start Address */
 #define CAN_MCAN_RXF0C_F0SA_POS      (2U)
@@ -1050,10 +1070,12 @@
 #define CAN_MCAN_RXF0C_F0S           CAN_MCAN_RXF0C_F0S_MSK
 /* Rx FIFO 0 Watermark */
 #define CAN_MCAN_RXF0C_F0WM_POS      (24)
+// #define CAN_MCAN_RXF0C_F0WM_POS      (24U) // from HAL
 #define CAN_MCAN_RXF0C_F0WM_MSK      (0x7FUL << CAN_MCAN_RXF0C_F0WM_POS)
 #define CAN_MCAN_RXF0C_F0WM           CAN_MCAN_RXF0C_F0WM_MSK
 /* FIFO 0 Operation Mode */
 #define CAN_MCAN_RXF0C_F0OM_POS      (31)
+// #define CAN_MCAN_RXF0C_F0OM_POS      (31U) // from HAL
 #define CAN_MCAN_RXF0C_F0OM_MSK      (0x1UL << CAN_MCAN_RXF0C_F0OM_POS)
 #define CAN_MCAN_RXF0C_F0OM           CAN_MCAN_RXF0C_F0OM_MSK
 
@@ -1062,14 +1084,17 @@
 /* Rx FIFO 0 Fill Level */
 #define CAN_MCAN_RXF0S_F0FL_POS      (0U)
 #define CAN_MCAN_RXF0S_F0FL_MSK      (0xFUL << CAN_MCAN_RXF0S_F0FL_POS)
+// #define CAN_MCAN_RXF0S_F0FL_MSK      (0x7FUL << CAN_MCAN_RXF0S_F0FL_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0FL          CAN_MCAN_RXF0S_F0FL_MSK
 /* Rx FIFO 0 Get Index */
 #define CAN_MCAN_RXF0S_F0GI_POS      (8U)
 #define CAN_MCAN_RXF0S_F0GI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0GI_POS)
+// #define CAN_MCAN_RXF0S_F0GI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0GI_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0GI          CAN_MCAN_RXF0S_F0GI_MSK
 /* Rx FIFO 0 Put Index */
 #define CAN_MCAN_RXF0S_F0PI_POS      (16U)
 #define CAN_MCAN_RXF0S_F0PI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0PI_POS)
+// #define CAN_MCAN_RXF0S_F0PI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0PI_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0PI          CAN_MCAN_RXF0S_F0PI_MSK
 /* Rx FIFO 0 Full */
 #define CAN_MCAN_RXF0S_F0F_POS       (24U)
@@ -1109,6 +1134,7 @@
 /* Rx FIFO 0 Acknowledge Index */
 #define CAN_MCAN_RXF0A_F0AI_POS      (0U)
 #define CAN_MCAN_RXF0A_F0AI_MSK      (0x7UL << CAN_MCAN_RXF0A_F0AI_POS)
+// #define CAN_MCAN_RXF0A_F0AI_MSK      (0x3FUL << CAN_MCAN_RXF0A_F0AI_POS) // from HAL
 #define CAN_MCAN_RXF0A_F0AI          CAN_MCAN_RXF0A_F0AI_MSK
 #else
 /* Rx FIFO 0 Acknowledge Index */
@@ -1147,14 +1173,17 @@
 /* Rx FIFO 1 Fill Level */
 #define CAN_MCAN_RXF1S_F1FL_POS      (0U)
 #define CAN_MCAN_RXF1S_F1FL_MSK      (0xFUL << CAN_MCAN_RXF1S_F1FL_POS)
+// #define CAN_MCAN_RXF1S_F1FL_MSK      (0x7FUL << CAN_MCAN_RXF1S_F1FL_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1FL          CAN_MCAN_RXF1S_F1FL_MSK
 /* Rx FIFO 1 Get Index */
 #define CAN_MCAN_RXF1S_F1GI_POS      (8U)
 #define CAN_MCAN_RXF1S_F1GI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1GI_POS)
+// #define CAN_MCAN_RXF1S_F1GI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1GI_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1GI          CAN_MCAN_RXF1S_F1GI_MSK
 /* Rx FIFO 1 Put Index */
 #define CAN_MCAN_RXF1S_F1PI_POS      (16U)
 #define CAN_MCAN_RXF1S_F1PI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1PI_POS)
+// #define CAN_MCAN_RXF1S_F1PI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1PI_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1PI          CAN_MCAN_RXF1S_F1PI_MSK
 /* Rx FIFO 1 Full */
 #define CAN_MCAN_RXF1S_F1F_POS       (24U)
@@ -1195,6 +1224,7 @@
 #ifdef CONFIG_CAN_STM32FD
 #define CAN_MCAN_RXF1A_F1AI_POS      (0U)
 #define CAN_MCAN_RXF1A_F1AI_MSK      (0x7UL << CAN_MCAN_RXF1A_F1AI_POS)
+// #define CAN_MCAN_RXF1A_F1AI_MSK      (0x3FUL << CAN_MCAN_RXF1A_F1AI_POS) // from HAL
 #define CAN_MCAN_RXF1A_F1AI          CAN_MCAN_RXF1A_F1AI_MSK
 #else
 #define CAN_MCAN_RXF1A_F1AI_POS      (0U)
@@ -1219,7 +1249,23 @@
 /***************  Bit definition for CAN_MCAN_TXBC register  ******************/
 #ifdef CONFIG_CAN_STM32FD
 /* Tx FIFO/Queue Mode */
-#define CAN_MCAN_TXBC_TFQM_POS       (24U)
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	#define CAN_MCAN_TXBC_TFQM_POS       (30U)
+	/* Tx Buffers Start Address */
+	#define CAN_MCAN_TXBC_TBSA_POS       (2U)
+	#define CAN_MCAN_TXBC_TBSA_MSK       (0x3FFFUL << CAN_MCAN_TXBC_TBSA_POS)
+	#define CAN_MCAN_TXBC_TBSA           CAN_MCAN_TXBC_TBSA_MSK
+	/* Number of Dedicated Transmit Buffers */
+	#define CAN_MCAN_TXBC_NDTB_POS       (16U)
+	#define CAN_MCAN_TXBC_NDTB_MSK       (0x3FUL << CAN_MCAN_TXBC_NDTB_POS)
+	#define CAN_MCAN_TXBC_NDTB           CAN_MCAN_TXBC_NDTB_MSK
+	/* Transmit FIFO/Queue Size */
+	#define CAN_MCAN_TXBC_TFQS_POS       (24U)
+	#define CAN_MCAN_TXBC_TFQS_MSK       (0x3FUL << CAN_MCAN_TXBC_TFQS_POS)
+	#define CAN_MCAN_TXBC_TFQS           CAN_MCAN_TXBC_TFQS_MSK
+#else
+	#define CAN_MCAN_TXBC_TFQM_POS       (24U)
+#endif
 #define CAN_MCAN_TXBC_TFQM_MSK       (0x1UL << CAN_MCAN_TXBC_TFQM_POS)
 #define CAN_MCAN_TXBC_TFQM           CAN_MCAN_TXBC_TFQM_MSK
 #else
@@ -1247,14 +1293,17 @@
 /* Tx FIFO Free Level */
 #define CAN_MCAN_TXFQS_TFFL_POS      (0U)
 #define CAN_MCAN_TXFQS_TFFL_MSK      (0x7UL << CAN_MCAN_TXFQS_TFFL_POS)
+// #define CAN_MCAN_TXFQS_TFFL_MSK      (0x3UL << CAN_MCAN_TXFQS_TFFL_POS) // from HAL
 #define CAN_MCAN_TXFQS_TFFL          CAN_MCAN_TXFQS_TFFL_MSK
 /* Tx FIFO Get Index */
 #define CAN_MCAN_TXFQS_TFGI_POS      (8U)
 #define CAN_MCAN_TXFQS_TFGI_MSK      (0x3UL << CAN_MCAN_TXFQS_TFGI_POS)
+// #define CAN_MCAN_TXFQS_TFGI_MSK      (0x1FUL << CAN_MCAN_TXFQS_TFGI_POS) // from HAL
 #define CAN_MCAN_TXFQS_TFGI          CAN_MCAN_TXFQS_TFGI_MSK
 /* Tx FIFO/Queue Put Index */
 #define CAN_MCAN_TXFQS_TFQPI_POS     (16U)
 #define CAN_MCAN_TXFQS_TFQPI_MSK     (0x3UL << CAN_MCAN_TXFQS_TFQPI_POS)
+// #define CAN_MCAN_TXFQS_TFQPI_MSK     (0x1FUL << CAN_MCAN_TXFQS_TFQPI_POS) // from HAL
 #define CAN_MCAN_TXFQS_TFQPI         CAN_MCAN_TXFQS_TFQPI_MSK
 /* Tx FIFO/Queue Full */
 #define CAN_MCAN_TXFQS_TFQF_POS      (21U)
@@ -1293,6 +1342,7 @@
 /* Transmission Request Pending */
 #define CAN_MCAN_TXBRP_TRP_POS       (0U)
 #define CAN_MCAN_TXBRP_TRP_MSK       (0x7UL << CAN_MCAN_TXBRP_TRP_POS)
+// #define CAN_MCAN_TXBRP_TRP_MSK       (0xFFFFFFFFUL << CAN_MCAN_TXBRP_TRP_POS) // from HAL
 #define CAN_MCAN_TXBRP_TRP           CAN_MCAN_TXBRP_TRP_MSK
 #else
 /* Transmission Request Pending */
@@ -1319,6 +1369,7 @@
 /* Cancellation Request */
 #define CAN_MCAN_TXBCR_CR_POS        (0U)
 #define CAN_MCAN_TXBCR_CR_MSK        (0x7UL << CAN_MCAN_TXBCR_CR_POS)
+// #define CAN_MCAN_TXBCR_CR_MSK        (0xFFFFFFFFUL << CAN_MCAN_TXBCR_CR_POS) // from HAL
 #define CAN_MCAN_TXBCR_CR            CAN_MCAN_TXBCR_CR_MSK
 #else
 /* Cancellation Request */
@@ -1332,6 +1383,7 @@
 /* Transmission Occurred */
 #define CAN_MCAN_TXBTO_TO_POS        (0U)
 #define CAN_MCAN_TXBTO_TO_MSK        (0x7UL << CAN_MCAN_TXBTO_TO_POS)
+// #define CAN_MCAN_TXBTO_TO_MSK        (0xFFFFFFFFUL << CAN_MCAN_TXBTO_TO_POS) // from HAL
 #define CAN_MCAN_TXBTO_TO            CAN_MCAN_TXBTO_TO_MSK
 #else
 /* Transmission Occurred */
@@ -1345,6 +1397,7 @@
 /* Cancellation Finished */
 #define CAN_MCAN_TXBCF_CF_POS        (0U)
 #define CAN_MCAN_TXBCF_CF_MSK        (0x7UL << CAN_MCAN_TXBCF_CF_POS)
+// #define CAN_MCAN_TXBCF_CF_MSK        (0xFFFFFFFFUL << CAN_MCAN_TXBCF_CF_POS) // from HAL
 #define CAN_MCAN_TXBCF_CF            CAN_MCAN_TXBCF_CF_MSK
 #else
 /* Cancellation Finished */
@@ -1358,6 +1411,7 @@
 /* Transmission Interrupt Enable */
 #define CAN_MCAN_TXBTIE_TIE_POS      (0U)
 #define CAN_MCAN_TXBTIE_TIE_MSK      (0x7UL << CAN_MCAN_TXBTIE_TIE_POS)
+// #define CAN_MCAN_TXBTIE_TIE_MSK      (0xFFFFFFFFUL << CAN_MCAN_TXBTIE_TIE_POS) // from HAL
 #define CAN_MCAN_TXBTIE_TIE          CAN_MCAN_TXBTIE_TIE_MSK
 #else
 /* Transmission Interrupt Enable */
@@ -1371,6 +1425,7 @@
 /* Cancellation Finished Interrupt Enable */
 #define CAN_MCAN_TXBCIE_CFIE_POS     (0U)
 #define CAN_MCAN_TXBCIE_CFIE_MSK     (0x7UL << CAN_MCAN_TXBCIE_CFIE_POS)
+// #define CAN_MCAN_TXBCIE_CFIE_MSK     (0xFFFFFFFFUL << CAN_MCAN_TXBCIE_CFIE_POS) //from HAL
 #define CAN_MCAN_TXBCIE_CFIE         CAN_MCAN_TXBCIE_CFIE_MSK
 #else
 /* Cancellation Finished Interrupt Enable */
@@ -1384,6 +1439,9 @@
 #define CAN_MCAN_TXEFC_EFSA_POS      (0U)
 #define CAN_MCAN_TXEFC_EFSA_MSK      (0x3FFFUL << CAN_MCAN_TXEFC_EFSA_POS)
 #define CAN_MCAN_TXEFC_EFSA          CAN_MCAN_TXEFC_EFSA_MSK
+// #define CAN_MCAN_TXEFC_EFSA_POS      (2U)		// from HAL
+// #define CAN_MCAN_TXEFC_EFSA_MSK      (0x3FFFUL << CAN_MCAN_TXEFC_EFSA_POS)
+// #define CAN_MCAN_TXEFC_EFSA          CAN_MCAN_TXEFC_EFSA_MSK
 /* Event FIFO Size */
 #define CAN_MCAN_TXEFC_EFS_POS      (16U)
 #define CAN_MCAN_TXEFC_EFS_MSK      (0x3FUL << CAN_MCAN_TXEFC_EFS_POS)
@@ -1398,14 +1456,17 @@
 /* Event FIFO Fill Level */
 #define CAN_MCAN_TXEFS_EFFL_POS      (0U)
 #define CAN_MCAN_TXEFS_EFFL_MSK      (0x7UL << CAN_MCAN_TXEFS_EFFL_POS)
+// #define CAN_MCAN_TXEFS_EFFL_MSK      (0x3FUL << CAN_MCAN_TXEFS_EFFL_POS) // from HAL
 #define CAN_MCAN_TXEFS_EFFL          CAN_MCAN_TXEFS_EFFL_MSK
 /* Event FIFO Get Index */
 #define CAN_MCAN_TXEFS_EFGI_POS      (8U)
 #define CAN_MCAN_TXEFS_EFGI_MSK      (0x3UL << CAN_MCAN_TXEFS_EFGI_POS)
+// #define CAN_MCAN_TXEFS_EFGI_MSK      (0x1FUL << CAN_MCAN_TXEFS_EFGI_POS) // from HAL
 #define CAN_MCAN_TXEFS_EFGI          CAN_MCAN_TXEFS_EFGI_MSK
 /* Event FIFO Put Index */
 #define CAN_MCAN_TXEFS_EFPI_POS      (16U)
 #define CAN_MCAN_TXEFS_EFPI_MSK      (0x3UL << CAN_MCAN_TXEFS_EFPI_POS)
+// #define CAN_MCAN_TXEFS_EFPI_MSK      (0x1FUL << FDCAN_TXEFS_EFPI_Pos) // from HAL
 #define CAN_MCAN_TXEFS_EFPI          CAN_MCAN_TXEFS_EFPI_MSK
 /* Event FIFO Full */
 #define CAN_MCAN_TXEFS_EFF_POS       (24U)
@@ -1445,6 +1506,7 @@
 /* Event FIFO Acknowledge Index */
 #define CAN_MCAN_TXEFA_EFAI_POS      (0U)
 #define CAN_MCAN_TXEFA_EFAI_MSK      (0x3UL << CAN_MCAN_TXEFA_EFAI_POS)
+// #define CAN_MCAN_TXEFA_EFAI_MSK      (0x1FUL << CAN_MCAN_TXEFA_EFAI_POS) // from HAL
 #define CAN_MCAN_TXEFA_EFAI          CAN_MCAN_TXEFA_EFAI_MSK
 #else
 /* Event FIFO Acknowledge Index */
@@ -1455,38 +1517,38 @@
 
 #ifdef CONFIG_CAN_STM32FD
 
-  __IO uint32_t NDAT1;        /*!< FDCAN New Data 1 register,                                       Address offset: 0x098 */
-  __IO uint32_t NDAT2;        /*!< FDCAN New Data 2 register,                                       Address offset: 0x09C */
-  __IO uint32_t RXF0C;        /*!< FDCAN Rx FIFO 0 Configuration register,                          Address offset: 0x0A0 */
+//   __IO uint32_t NDAT1;        /*!< FDCAN New Data 1 register,                                       Address offset: 0x098 */
+//   __IO uint32_t NDAT2;        /*!< FDCAN New Data 2 register,                                       Address offset: 0x09C */
+//   __IO uint32_t RXF0C;        /*!< FDCAN Rx FIFO 0 Configuration register,                          Address offset: 0x0A0 */
 
-  __IO uint32_t RXF0S;        /*!< FDCAN Rx FIFO 0 Status register,                                 Address offset: 0x0A4 */
-  __IO uint32_t RXF0A;        /*!< FDCAN Rx FIFO 0 Acknowledge register,                            Address offset: 0x0A8 */
+//   __IO uint32_t RXF0S;        /*!< FDCAN Rx FIFO 0 Status register,                                 Address offset: 0x0A4 */
+//   __IO uint32_t RXF0A;        /*!< FDCAN Rx FIFO 0 Acknowledge register,                            Address offset: 0x0A8 */
 
-  __IO uint32_t RXBC;         /*!< FDCAN Rx Buffer Configuration register,                          Address offset: 0x0AC */
+//   __IO uint32_t RXBC;         /*!< FDCAN Rx Buffer Configuration register,                          Address offset: 0x0AC */
 
-  __IO uint32_t RXF1C;        /*!< FDCAN Rx FIFO 1 Configuration register,                          Address offset: 0x0B0 */
+//   __IO uint32_t RXF1C;        /*!< FDCAN Rx FIFO 1 Configuration register,                          Address offset: 0x0B0 */
 
-  __IO uint32_t RXF1S;        /*!< FDCAN Rx FIFO 1 Status register,                                 Address offset: 0x0B4 */
-  __IO uint32_t RXF1A;        /*!< FDCAN Rx FIFO 1 Acknowledge register,                            Address offset: 0x0B8 */
+//   __IO uint32_t RXF1S;        /*!< FDCAN Rx FIFO 1 Status register,                                 Address offset: 0x0B4 */
+//   __IO uint32_t RXF1A;        /*!< FDCAN Rx FIFO 1 Acknowledge register,                            Address offset: 0x0B8 */
 
-  __IO uint32_t RXESC;        /*!< FDCAN Rx Buffer/FIFO Element Size Configuration register,        Address offset: 0x0BC */
+//   __IO uint32_t RXESC;        /*!< FDCAN Rx Buffer/FIFO Element Size Configuration register,        Address offset: 0x0BC */
 
-  __IO uint32_t TXBC;         /*!< FDCAN Tx Buffer Configuration register,                          Address offset: 0x0C0 */
+//   __IO uint32_t TXBC;         /*!< FDCAN Tx Buffer Configuration register,                          Address offset: 0x0C0 */
   
-  __IO uint32_t TXFQS;        /*!< FDCAN Tx FIFO/Queue Status register,                             Address offset: 0x0C4 */
-  __IO uint32_t TXESC;        /*!< FDCAN Tx Buffer Element Size Configuration register,             Address offset: 0x0C8 */
-  __IO uint32_t TXBRP;        /*!< FDCAN Tx Buffer Request Pending register,                        Address offset: 0x0CC */
-  __IO uint32_t TXBAR;        /*!< FDCAN Tx Buffer Add Request register,                            Address offset: 0x0D0 */
-  __IO uint32_t TXBCR;        /*!< FDCAN Tx Buffer Cancellation Request register,                   Address offset: 0x0D4 */
-  __IO uint32_t TXBTO;        /*!< FDCAN Tx Buffer Transmission Occurred register,                  Address offset: 0x0D8 */
-  __IO uint32_t TXBCF;        /*!< FDCAN Tx Buffer Cancellation Finished register,                  Address offset: 0x0DC */
-  __IO uint32_t TXBTIE;       /*!< FDCAN Tx Buffer Transmission Interrupt Enable register,          Address offset: 0x0E0 */
-  __IO uint32_t TXBCIE;       /*!< FDCAN Tx Buffer Cancellation Finished Interrupt Enable register, Address offset: 0x0E4 */
-  __IO uint32_t RESERVED6[2]; /*!< Reserved,                                                                0x0E8 - 0x0EC */
-  __IO uint32_t TXEFC;        /*!< FDCAN Tx Event FIFO Configuration register,                      Address offset: 0x0F0 */
-  __IO uint32_t TXEFS;        /*!< FDCAN Tx Event FIFO Status register,                             Address offset: 0x0F4 */
-  __IO uint32_t TXEFA;        /*!< FDCAN Tx Event FIFO Acknowledge register,                        Address offset: 0x0F8 */
-  __IO uint32_t RESERVED7;    /*!< Reserved,                                                                        0x0FC */
+//   __IO uint32_t TXFQS;        /*!< FDCAN Tx FIFO/Queue Status register,                             Address offset: 0x0C4 */
+//   __IO uint32_t TXESC;        /*!< FDCAN Tx Buffer Element Size Configuration register,             Address offset: 0x0C8 */
+//   __IO uint32_t TXBRP;        /*!< FDCAN Tx Buffer Request Pending register,                        Address offset: 0x0CC */
+//   __IO uint32_t TXBAR;        /*!< FDCAN Tx Buffer Add Request register,                            Address offset: 0x0D0 */
+//   __IO uint32_t TXBCR;        /*!< FDCAN Tx Buffer Cancellation Request register,                   Address offset: 0x0D4 */
+//   __IO uint32_t TXBTO;        /*!< FDCAN Tx Buffer Transmission Occurred register,                  Address offset: 0x0D8 */
+//   __IO uint32_t TXBCF;        /*!< FDCAN Tx Buffer Cancellation Finished register,                  Address offset: 0x0DC */
+//   __IO uint32_t TXBTIE;       /*!< FDCAN Tx Buffer Transmission Interrupt Enable register,          Address offset: 0x0E0 */
+//   __IO uint32_t TXBCIE;       /*!< FDCAN Tx Buffer Cancellation Finished Interrupt Enable register, Address offset: 0x0E4 */
+//   __IO uint32_t RESERVED6[2]; /*!< Reserved,                                                                0x0E8 - 0x0EC */
+//   __IO uint32_t TXEFC;        /*!< FDCAN Tx Event FIFO Configuration register,                      Address offset: 0x0F0 */
+//   __IO uint32_t TXEFS;        /*!< FDCAN Tx Event FIFO Status register,                             Address offset: 0x0F4 */
+//   __IO uint32_t TXEFA;        /*!< FDCAN Tx Event FIFO Acknowledge register,                        Address offset: 0x0F8 */
+//   __IO uint32_t RESERVED7;    /*!< Reserved,                                                                        0x0FC */
 
 struct can_mcan_reg {
 	volatile uint32_t crel;     /* Core Release Register */
@@ -1495,7 +1557,7 @@ struct can_mcan_reg {
 	#if !defined(CONFIG_SOC_SERIES_STM32H7X)
 	volatile uint32_t cust;     /* Customer Register */
 	#else
-	uint32_t res0;              /* Reserved (1) */
+	volatile uint32_t res1;     /* Reserved (1) */
 	#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 
 	volatile uint32_t dbtp;     /* Data Bit Timing & Prescaler Register */
@@ -1507,36 +1569,47 @@ struct can_mcan_reg {
 	volatile uint32_t tscv;     /* Timestamp Counter Value */
 	volatile uint32_t tocc;     /* Timeout Counter Configuration */
 	volatile uint32_t tocv;     /* Timeout Counter Value */
-	uint32_t res1[4];           /* Reserved (4) */
+	volatile uint32_t res2[4];  /* Reserved (4) */
 	volatile uint32_t ecr;      /* Error Counter Register */
 	volatile uint32_t psr;      /* Protocol Status Register */
 	volatile uint32_t tdcr;     /* Transmitter Delay Compensation */
-	uint32_t res2;              /* Reserved (1) */
+	volatile uint32_t res3;     /* Reserved (1) */
 	volatile uint32_t ir;       /* Interrupt Register */
 	volatile uint32_t ie;       /* Interrupt Enable */
 	volatile uint32_t ils;      /* Interrupt Line Select */
 	volatile uint32_t ile;      /* Interrupt Line Enable */
-	uint32_t res3[8];           /* Reserved (8) */
-	volatile uint32_t rxgfc;    /* Global Filter Configuration */
+	volatile uint32_t res4[8];  /* Reserved (8) */
+	volatile uint32_t gfc;      /* Global Filter Configuration */
 
 #if defined(CONFIG_SOC_SERIES_STM32H7X)
-	volatile uint32_t sidfc;     /* Standard ID Filter Configuration */
-	volatile uint32_t xidfc;     /* Extended ID Filter Configuration */
-	uint32_t res31;              /* Reserved (1) */
+	volatile uint32_t sidfc;    /* Standard ID Filter Configuration */
+	volatile uint32_t xidfc;    /* Extended ID Filter Configuration */
+	volatile uint32_t res5;     /* Reserved (1) */
 #endif  /* CONFIG_SOC_SERIES_STM32H7X */
 
 	volatile uint32_t xidam;    /* Extended ID AND Mask */
 	volatile uint32_t hpms;     /* High Priority Message Status */
-
-
-	uint32_t res4;              /* Reserved (1) */
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t ndata1;   /* New Data 1 */
+	volatile uint32_t ndata2;   /* New Data 2 */
+	volatile uint32_t rxf0c;    /* Rx FIFO 0 Configuration */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 	volatile uint32_t rxf0s;    /* Rx FIFO 0 Status */
 	volatile uint32_t rxf0a;    /* Rx FIFO 0 Acknowledge */
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t rxbc;     /* Rx Buffer Configuration */
+	volatile uint32_t rxf1c;    /* Rx FIFO 1 Configuration */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 	volatile uint32_t rxf1s;    /* Rx FIFO 1 Status */
 	volatile uint32_t rxf1a;    /* Rx FIFO 1 Acknowledge */
-	uint32_t res5[8];           /* Reserved (8) */
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t rxesc;    /* Rx Buffer / FIFO Element Size Config */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 	volatile uint32_t txbc;     /* Tx Buffer Configuration */
 	volatile uint32_t txfqs;    /* Tx FIFO/Queue Status */
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t txesc;    /* Tx Buffer Element Size Configuration */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 	volatile uint32_t txbrp;    /* Tx Buffer Request Pending */
 	volatile uint32_t txbar;    /* Tx Buffer Add Request */
 	volatile uint32_t txbcr;    /* Tx Buffer Cancellation */
@@ -1544,9 +1617,15 @@ struct can_mcan_reg {
 	volatile uint32_t txbcf;    /* Tx Buffer Cancellation Finished */
 	volatile uint32_t txbtie;   /* Tx Buffer Transmission Interrupt Enable */
 	volatile uint32_t txcbie;   /* Tx Buffer Cancellation Fi.Interrupt En. */
+	volatile uint32_t res6[2];  /* Reserved (2) */
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	volatile uint32_t txefc;    /* Tx Event FIFO Configuration */
+#endif  /* CONFIG_SOC_SERIES_STM32H7X */
 	volatile uint32_t txefs;    /* Tx Event FIFO Status */
 	volatile uint32_t txefa;    /* Tx Event FIFO Acknowledge */
+	volatile uint32_t res7;     /* Reserved (1) */
 };
+
 #else /* CONFIG_CAN_STM32FD */
 
 struct can_mcan_reg {

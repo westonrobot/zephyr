@@ -252,7 +252,7 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 		(can->crel & CAN_MCAN_CREL_MON) >> CAN_MCAN_CREL_MON_POS,
 		(can->crel & CAN_MCAN_CREL_DAY) >> CAN_MCAN_CREL_DAY_POS);
 
-#ifndef CONFIG_CAN_STM32FD
+#ifdef CONFIG_CAN_STM32FD
 	can->sidfc = ((uint32_t)msg_ram->std_filt & CAN_MCAN_SIDFC_FLSSA_MSK) |
 		     (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
 	can->xidfc = ((uint32_t)msg_ram->ext_filt & CAN_MCAN_XIDFC_FLESA_MSK) |
@@ -306,10 +306,12 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 #endif
 
 #ifdef CONFIG_CAN_STM32FD
-	can->rxgfc |= (CONFIG_CAN_MAX_STD_ID_FILTER << CAN_MCAN_RXGFC_LSS_POS) |
-		      (CONFIG_CAN_MAX_EXT_ID_FILTER << CAN_MCAN_RXGFC_LSE_POS) |
-		      (0x2 << CAN_MCAN_RXGFC_ANFS_POS) |
-		      (0x2 << CAN_MCAN_RXGFC_ANFE_POS);
+	// can->gfc |= (CONFIG_CAN_MAX_STD_ID_FILTER << CAN_MCAN_RXGFC_LSS_POS) |
+	// 	      (CONFIG_CAN_MAX_EXT_ID_FILTER << CAN_MCAN_RXGFC_LSE_POS) |
+	// 	      (0x2 << CAN_MCAN_RXGFC_ANFS_POS) |
+	// 	      (0x2 << CAN_MCAN_RXGFC_ANFE_POS);
+	can->gfc |= (0x2 << 2) |
+		    (0x2 << 4);
 #else
 	can->gfc |= (0x2 << CAN_MCAN_GFC_ANFE_POS) |
 		    (0x2 << CAN_MCAN_GFC_ANFS_POS);
@@ -712,7 +714,8 @@ int can_mcan_send(const struct can_mcan_config *cfg,
 
 	if (callback == NULL) {
 		LOG_DBG("Waiting for TX complete");
-		k_sem_take(&data->tx_fin_sem[put_idx], K_FOREVER);
+		k_sem_take(&data->tx_fin_sem[put_idx], K_FOREVER);  //check here
+		LOG_DBG("TX completed");
 	}
 
 	return CAN_TX_OK;
