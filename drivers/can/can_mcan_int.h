@@ -555,96 +555,108 @@
 #define CAN_MCAN_IE_RF0N_POS        (0U)
 #define CAN_MCAN_IE_RF0N_MSK        (0x1UL << CAN_MCAN_IE_RF0N_POS)
 #define CAN_MCAN_IE_RF0N            CAN_MCAN_IE_RF0N_MSK
+/* Rx FIFO 0 Watermark Reached*/
+#define CAN_MCAN_IE_RF0W_POS        (1U) // from HAL
+#define CAN_MCAN_IE_RF0W_MSK        (0x1UL << CAN_MCAN_IE_RF0W_POS)
+#define CAN_MCAN_IE_RF0W            CAN_MCAN_IE_RF0W_MSK
 /* Rx FIFO 0 Full Enable */
-#define CAN_MCAN_IE_RF0F_POS        (1U)
+#define CAN_MCAN_IE_RF0F_POS        (2U) // from HAL
 #define CAN_MCAN_IE_RF0F_MSK        (0x1UL << CAN_MCAN_IE_RF0F_POS)
 #define CAN_MCAN_IE_RF0F            CAN_MCAN_IE_RF0F_MSK
 /* Rx FIFO 0 Message Lost Enable */
-#define CAN_MCAN_IE_RF0L_POS        (2U)
+#define CAN_MCAN_IE_RF0L_POS        (3U) // from HAL
 #define CAN_MCAN_IE_RF0L_MSK        (0x1UL << CAN_MCAN_IE_RF0L_POS)
 #define CAN_MCAN_IE_RF0L            CAN_MCAN_IE_RF0L_MSK
 /* Rx FIFO 1 New Message Enable */
-#define CAN_MCAN_IE_RF1N_POS        (3U)
+#define CAN_MCAN_IE_RF1N_POS        (4U) // from HAL
 #define CAN_MCAN_IE_RF1N_MSK        (0x1UL << CAN_MCAN_IE_RF1N_POS)
 #define CAN_MCAN_IE_RF1N            CAN_MCAN_IE_RF1N_MSK
+/* Rx FIFO 1 Watermark Reached*/
+#define CAN_MCAN_IE_RF1W_POS        (5U) // from HAL
+#define CAN_MCAN_IE_RF1W_MSK        (0x1UL << CAN_MCAN_IE_RF1W_POS)
+#define CAN_MCAN_IE_RF1W            CAN_MCAN_IE_RF1W_MSK
 /* Rx FIFO 1 Full Enable */
-#define CAN_MCAN_IE_RF1F_POS        (4U)
+#define CAN_MCAN_IE_RF1F_POS        (6U) // from HAL
 #define CAN_MCAN_IE_RF1F_MSK        (0x1UL << CAN_MCAN_IE_RF1F_POS)
 #define CAN_MCAN_IE_RF1F            CAN_MCAN_IE_RF1F_MSK
 /* Rx FIFO 1 Message Lost Enable */
-#define CAN_MCAN_IE_RF1L_POS        (5U)
+#define CAN_MCAN_IE_RF1L_POS        (7U) // from HAL
 #define CAN_MCAN_IE_RF1L_MSK        (0x1UL << CAN_MCAN_IE_RF1L_POS)
 #define CAN_MCAN_IE_RF1L            CAN_MCAN_IE_RF1L_MSK
 /* High Priority Message Enable */
-#define CAN_MCAN_IE_HPM_POS         (6U)
+#define CAN_MCAN_IE_HPM_POS         (8U) // from HAL
 #define CAN_MCAN_IE_HPM_MSK         (0x1UL << CAN_MCAN_IE_HPM_POS)
 #define CAN_MCAN_IE_HPM             CAN_MCAN_IE_HPM_MSK
 /* Transmission Completed Enable */
-#define CAN_MCAN_IE_TC_POS          (7U)
+#define CAN_MCAN_IE_TC_POS          (9U) // from HAL
 #define CAN_MCAN_IE_TC_MSK          (0x1UL << CAN_MCAN_IE_TC_POS)
 #define CAN_MCAN_IE_TC              CAN_MCAN_IE_TC_MSK
 /* Transmission Cancellation Finished Enable*/
-#define CAN_MCAN_IE_TCF_POS         (8U)
+#define CAN_MCAN_IE_TCF_POS         (10U) // from HAL
 #define CAN_MCAN_IE_TCF_MSK         (0x1UL << CAN_MCAN_IE_TCF_POS)
 #define CAN_MCAN_IE_TCF             CAN_MCAN_IE_TCF_MSK
 /* Tx FIFO Empty Enable */
-#define CAN_MCAN_IE_TFE_POS         (9U)
+#define CAN_MCAN_IE_TFE_POS         (11U) // from HAL
 #define CAN_MCAN_IE_TFE_MSK         (0x1UL << CAN_MCAN_IE_TFE_POS)
 #define CAN_MCAN_IE_TFE             CAN_MCAN_IE_TFE_MSK
 /* Tx Event FIFO New Entry Enable */
-#define CAN_MCAN_IE_TEFN_POS        (10U)
+#define CAN_MCAN_IE_TEFN_POS        (12U) // from HAL
 #define CAN_MCAN_IE_TEFN_MSK        (0x1UL << CAN_MCAN_IE_TEFN_POS)
 #define CAN_MCAN_IE_TEFN            CAN_MCAN_IE_TEFN_MSK
+/* Tx Event FIFO Watermark */
+#define CAN_MCAN_IE_TEFW_POS        (13U) // from HAL
+#define CAN_MCAN_IE_TEFW_MSK        (0x1UL << CAN_MCAN_IE_TEFW_POS)
+#define CAN_MCAN_IE_TEFW            CAN_MCAN_IE_TEFW_MSK
 /* Tx Event FIFO Full Enable */
-#define CAN_MCAN_IE_TEFF_POS        (11U)
+#define CAN_MCAN_IE_TEFF_POS        (14U) // from HAL
 #define CAN_MCAN_IE_TEFF_MSK        (0x1UL << CAN_MCAN_IE_TEFF_POS)
 #define CAN_MCAN_IE_TEFF            CAN_MCAN_IE_TEFF_MSK
 /* Tx Event FIFO Element Lost Enable */
-#define CAN_MCAN_IE_TEFL_POS        (12U)
+#define CAN_MCAN_IE_TEFL_POS        (15U) // from HAL
 #define CAN_MCAN_IE_TEFL_MSK        (0x1UL << CAN_MCAN_IE_TEFL_POS)
 #define CAN_MCAN_IE_TEFL            CAN_MCAN_IE_TEFL_MSK
  /* Timestamp Wraparound Enable */
-#define CAN_MCAN_IE_TSW_POS         (13U)
+#define CAN_MCAN_IE_TSW_POS         (16U) // from HAL
 #define CAN_MCAN_IE_TSW_MSK         (0x1UL << CAN_MCAN_IE_TSW_POS)
 #define CAN_MCAN_IE_TSW             CAN_MCAN_IE_TSW_MSK
 /* Message RAM Access Failure Enable */
-#define CAN_MCAN_IE_MRAF_POS        (14U)
+#define CAN_MCAN_IE_MRAF_POS        (17U) // from HAL
 #define CAN_MCAN_IE_MRAF_MSK        (0x1UL << CAN_MCAN_IE_MRAF_POS)
 #define CAN_MCAN_IE_MRAF            CAN_MCAN_IE_MRAF_MSK
 /* Timeout Occurred Enable */
-#define CAN_MCAN_IE_TOO_POS         (15U)
+#define CAN_MCAN_IE_TOO_POS         (18U) // from HAL
 #define CAN_MCAN_IE_TOO_MSK         (0x1UL << CAN_MCAN_IE_TOO_POS)
 #define CAN_MCAN_IE_TOO             CAN_MCAN_IE_TOO_MSK
 /* Error Logging Overflow Enable */
-#define CAN_MCAN_IE_ELO_POS         (16U)
+#define CAN_MCAN_IE_ELO_POS         (22U) // from HAL
 #define CAN_MCAN_IE_ELO_MSK         (0x1UL << CAN_MCAN_IE_ELO_POS)
 #define CAN_MCAN_IE_ELO             CAN_MCAN_IE_ELO_MSK
 /* Error Passive Enable */
-#define CAN_MCAN_IE_EP_POS          (17U)
+#define CAN_MCAN_IE_EP_POS          (23U) // from HAL
 #define CAN_MCAN_IE_EP_MSK          (0x1UL << CAN_MCAN_IE_EP_POS)
 #define CAN_MCAN_IE_EP              CAN_MCAN_IE_EP_MSK
 /* Warning Status Enable */
-#define CAN_MCAN_IE_EW_POS          (18U)
+#define CAN_MCAN_IE_EW_POS          (24U) // from HAL
 #define CAN_MCAN_IE_EW_MSK          (0x1UL << CAN_MCAN_IE_EW_POS)
 #define CAN_MCAN_IE_EW              CAN_MCAN_IE_EW_MSK
 /* Bus_Off Status Enable */
-#define CAN_MCAN_IE_BO_POS          (19U)
+#define CAN_MCAN_IE_BO_POS          (25U) // from HAL
 #define CAN_MCAN_IE_BO_MSK          (0x1UL << CAN_MCAN_IE_BO_POS)
 #define CAN_MCAN_IE_BO              CAN_MCAN_IE_BO_MSK
 /* Watchdog Interrupt Enable  */
-#define CAN_MCAN_IE_WDI_POS         (20U)
+#define CAN_MCAN_IE_WDI_POS         (26U) // from HAL
 #define CAN_MCAN_IE_WDI_MSK         (0x1UL << CAN_MCAN_IE_WDI_POS)
 #define CAN_MCAN_IE_WDI             CAN_MCAN_IE_WDIE_MSK
 /* Protocol Error in Arbitration Phase Enable */
-#define CAN_MCAN_IE_PEA_POS         (21U)
+#define CAN_MCAN_IE_PEA_POS         (27U) // from HAL
 #define CAN_MCAN_IE_PEA_MSK         (0x1UL << CAN_MCAN_IE_PEA_POS)
 #define CAN_MCAN_IE_PEA             CAN_MCAN_IE_PEA_MSK
 /* Protocol Error in Data Phase Enable */
-#define CAN_MCAN_IE_PED_POS         (22U)
+#define CAN_MCAN_IE_PED_POS         (28U) // from HAL
 #define CAN_MCAN_IE_PED_MSK         (0x1UL << CAN_MCAN_IE_PED_POS)
 #define CAN_MCAN_IE_PED             CAN_MCAN_IE_PED_MSK
 /* Access to Reserved Address Enable */
-#define CAN_MCAN_IE_ARA_POS         (23U)
+#define CAN_MCAN_IE_ARA_POS         (29U) // from HAL
 #define CAN_MCAN_IE_ARA_MSK         (0x1UL << CAN_MCAN_IE_ARA_POS)
 #define CAN_MCAN_IE_ARA             CAN_MCAN_IE_ARA_MSK
 
@@ -775,6 +787,130 @@
 
 /***************  Bit definition for CAN_MCAN_ILS register  *******************/
 #ifdef CONFIG_CAN_STM32FD
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+
+/* Rx FIFO 0 New Message */
+#define CAN_MCAN_ILS_RF0N_POS         (0U)
+#define CAN_MCAN_ILS_RF0N_MSK         (0x1UL << CAN_MCAN_ILS_RF0N_POS)
+#define CAN_MCAN_ILS_RF0N             CAN_MCAN_ILS_RF0N_MSK
+/* Rx FIFO 0 Watermark Reached*/
+#define CAN_MCAN_ILS_RF0W_POS         (1U)
+#define CAN_MCAN_ILS_RF0W_MSK         (0x1UL << CAN_MCAN_ILS_RF0W_POS)
+#define CAN_MCAN_ILS_RF0W             CAN_MCAN_ILS_RF0W_MSK
+/* Rx FIFO 0 Full */
+#define CAN_MCAN_ILS_RF0F_POS         (2U)
+#define CAN_MCAN_ILS_RF0F_MSK         (0x1UL << CAN_MCAN_ILS_RF0F_POS)
+#define CAN_MCAN_ILS_RF0F             CAN_MCAN_ILS_RF0F_MSK
+/* Rx FIFO 0 Message Lost */
+#define CAN_MCAN_ILS_RF0L_POS         (3U)
+#define CAN_MCAN_ILS_RF0L_MSK         (0x1UL << CAN_MCAN_ILS_RF0L_POS)
+#define CAN_MCAN_ILS_RF0L             CAN_MCAN_ILS_RF0L_MSK
+/* Rx FIFO 1 New Message */
+#define CAN_MCAN_ILS_RF1N_POS         (4U)
+#define CAN_MCAN_ILS_RF1N_MSK         (0x1UL << CAN_MCAN_ILS_RF1N_POS)
+#define CAN_MCAN_ILS_RF1N             CAN_MCAN_ILS_RF1N_MSK
+/* Rx FIFO 1 Watermark Reached*/
+#define CAN_MCAN_ILS_RF1W_POS         (5U)
+#define CAN_MCAN_ILS_RF1W_MSK         (0x1UL << CAN_MCAN_ILS_RF1W_POS)
+#define CAN_MCAN_ILS_RF1W             CAN_MCAN_ILS_RF1W_MSK
+/* Rx FIFO 1 Full */
+#define CAN_MCAN_ILS_RF1F_POS         (6U)
+#define CAN_MCAN_ILS_RF1F_MSK         (0x1UL << CAN_MCAN_ILS_RF1F_POS)
+#define CAN_MCAN_ILS_RF1F             CAN_MCAN_ILS_RF1F_MSK
+/* Rx FIFO 1 Message Lost */
+#define CAN_MCAN_ILS_RF1L_POS         (7U)
+#define CAN_MCAN_ILS_RF1L_MSK         (0x1UL << CAN_MCAN_ILS_RF1L_POS)
+#define CAN_MCAN_ILS_RF1L             CAN_MCAN_ILS_RF1L_MSK
+/* High Priority Message */
+#define CAN_MCAN_ILS_HPM_POS          (8U)
+#define CAN_MCAN_ILS_HPM_MSK          (0x1UL << CAN_MCAN_ILS_HPM_POS)
+#define CAN_MCAN_ILS_HPM              CAN_MCAN_ILS_HPM_MSK
+/* Transmission Completed */
+#define CAN_MCAN_ILS_TC_POS           (9U)
+#define CAN_MCAN_ILS_TC_MSK           (0x1UL << CAN_MCAN_ILS_TC_POS)
+#define CAN_MCAN_ILS_TC               CAN_MCAN_ILS_TC_MSK
+/* Transmission Cancellation Finished */
+#define CAN_MCAN_ILS_TCF_POS          (10U)
+#define CAN_MCAN_ILS_TCF_MSK          (0x1UL << CAN_MCAN_ILS_TCF_POS)
+#define CAN_MCAN_ILS_TCF              CAN_MCAN_ILS_TCF_MSK
+/* Tx FIFO Empty */
+#define CAN_MCAN_ILS_TFE_POS          (11U)
+#define CAN_MCAN_ILS_TFE_MSK          (0x1UL << CAN_MCAN_ILS_TFE_POS)
+#define CAN_MCAN_ILS_TFE              CAN_MCAN_ILS_TFE_MSK
+/* Tx Event FIFO New Entry */
+#define CAN_MCAN_ILS_TEFN_POS         (12U)
+#define CAN_MCAN_ILS_TEFN_MSK         (0x1UL << CAN_MCAN_ILS_TEFN_POS)
+#define CAN_MCAN_ILS_TEFN             CAN_MCAN_ILS_TEFN_MSK
+/* Tx Event FIFO Watermark */
+#define CAN_MCAN_ILS_TEFW_POS         (13U)
+#define CAN_MCAN_ILS_TEFW_MSK         (0x1UL << CAN_MCAN_ILS_TEFW_POS)
+#define CAN_MCAN_ILS_TEFW             CAN_MCAN_ILS_TEFW_MSK
+/* Tx Event FIFO Full */
+#define CAN_MCAN_ILS_TEFF_POS         (14U)
+#define CAN_MCAN_ILS_TEFF_MSK         (0x1UL << CAN_MCAN_ILS_TEFF_POS)
+#define CAN_MCAN_ILS_TEFF             CAN_MCAN_ILS_TEFF_MSK
+/* Tx Event FIFO Element Lost */
+#define CAN_MCAN_ILS_TEFL_POS         (15U)
+#define CAN_MCAN_ILS_TEFL_MSK         (0x1UL << CAN_MCAN_ILS_TEFL_POS)
+#define CAN_MCAN_ILS_TEFL             CAN_MCAN_ILS_TEFL_MSK
+/* Timestamp Wraparound */
+#define CAN_MCAN_ILS_TSW_POS          (16U)
+#define CAN_MCAN_ILS_TSW_MSK          (0x1UL << CAN_MCAN_ILS_TSW_POS)
+#define CAN_MCAN_ILS_TSW              CAN_MCAN_ILS_TSW_MSK
+/* Message RAM Access Failure */
+#define CAN_MCAN_ILS_MRAF_POS         (17U)
+#define CAN_MCAN_ILS_MRAF_MSK         (0x1UL << CAN_MCAN_ILS_MRAF_POS)
+#define CAN_MCAN_ILS_MRAF             CAN_MCAN_ILS_MRAF_MSK
+/* Timeout Occurred */
+#define CAN_MCAN_ILS_TOO_POS          (18U)
+#define CAN_MCAN_ILS_TOO_MSK          (0x1UL << CAN_MCAN_ILS_TOO_POS)
+#define CAN_MCAN_ILS_TOO              CAN_MCAN_ILS_TOO_MSK
+/* Message stored to Dedicated Rx Buffer */
+#define CAN_MCAN_ILS_DRX_POS          (19U)
+#define CAN_MCAN_ILS_DRX_MSK          (0x1UL << CAN_MCAN_ILS_DRX_POS)
+#define CAN_MCAN_ILS_DRX              CAN_MCAN_ILS_DRX_MSK
+/* Bit Error Corrected */
+#define CAN_MCAN_ILS_BEC_POS          (20U)
+#define CAN_MCAN_ILS_BEC_MSK          (0x1UL << CAN_MCAN_ILS_BEC_POS)
+#define CAN_MCAN_ILS_BEC              CAN_MCAN_ILS_BEC_MSK
+/* Bit Error Uncorrected */
+#define CAN_MCAN_ILS_BEU_POS          (21U)
+#define CAN_MCAN_ILS_BEU_MSK          (0x1UL << CAN_MCAN_ILS_BEU_POS)
+#define CAN_MCAN_ILS_BEU              CAN_MCAN_ILS_BEU_MSK
+/* Error Logging Overflow */
+#define CAN_MCAN_ILS_ELO_POS          (22U)
+#define CAN_MCAN_ILS_ELO_MSK          (0x1UL << CAN_MCAN_ILS_ELO_POS)
+#define CAN_MCAN_ILS_ELO              CAN_MCAN_ILS_ELO_MSK
+/* Error Passive*/
+#define CAN_MCAN_ILS_EP_POS           (23U)
+#define CAN_MCAN_ILS_EP_MSK           (0x1UL << CAN_MCAN_ILS_EP_POS)
+#define CAN_MCAN_ILS_EP               CAN_MCAN_ILS_EP_MSK
+/* Warning Status*/
+#define CAN_MCAN_ILS_EW_POS           (24U)
+#define CAN_MCAN_ILS_EW_MSK           (0x1UL << CAN_MCAN_ILS_EW_POS)
+#define CAN_MCAN_ILS_EW               CAN_MCAN_ILS_EW_MSK
+/* Bus_Off Status*/
+#define CAN_MCAN_ILS_BO_POS           (25U)
+#define CAN_MCAN_ILS_BO_MSK           (0x1UL << CAN_MCAN_ILS_BO_POS)
+#define CAN_MCAN_ILS_BO               CAN_MCAN_ILS_BO_MSK
+/* Watchdog Interrupt */
+#define CAN_MCAN_ILS_WDI_POS          (26U)
+#define CAN_MCAN_ILS_WDI_MSK          (0x1UL << CAN_MCAN_ILS_WDI_POS)
+#define CAN_MCAN_ILS_WDI              CAN_MCAN_ILS_WDI_MSK
+/* Protocol Error in Arbitration Phase */
+#define CAN_MCAN_ILS_PEA_POS          (27U)
+#define CAN_MCAN_ILS_PEA_MSK          (0x1UL << CAN_MCAN_ILS_PEA_POS)
+#define CAN_MCAN_ILS_PEA              CAN_MCAN_ILS_PEA_MSK
+/* Protocol Error in Data Phase */
+#define CAN_MCAN_ILS_PED_POS          (28U)
+#define CAN_MCAN_ILS_PED_MSK          (0x1UL << CAN_MCAN_ILS_PED_POS)
+#define CAN_MCAN_ILS_PED              CAN_MCAN_ILS_PED_MSK
+/* Access to Reserved Address */
+#define CAN_MCAN_ILS_ARA_POS          (29U)
+#define CAN_MCAN_ILS_ARA_MSK          (0x1UL << CAN_MCAN_ILS_ARA_POS)
+#define CAN_MCAN_ILS_ARA      
+
+#else
 /* Rx FIFO 0 */
 #define CAN_MCAN_ILS_RXFIFO0_POS     (0U)
 #define CAN_MCAN_ILS_RXFIFO0_MSK     (0x1UL << CAN_MCAN_ILS_RXFIFO0_POS)
@@ -803,7 +939,7 @@
 #define CAN_MCAN_ILS_PERR_POS        (6U)
 #define CAN_MCAN_ILS_PERR_MSK        (0x1UL << CAN_MCAN_ILS_PERR_POS)
 #define CAN_MCAN_ILS_PERR            CAN_MCAN_ILS_PERR_MSK
-
+#endif
 #else/* CONFIG_CAN_STM32FD */
 /* Rx FIFO 0 New Message */
 #define CAN_MCAN_ILS_RF0N_POS         (0U)
@@ -1102,18 +1238,18 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Rx FIFO 0 Fill Level */
 #define CAN_MCAN_RXF0S_F0FL_POS      (0U)
-#define CAN_MCAN_RXF0S_F0FL_MSK      (0xFUL << CAN_MCAN_RXF0S_F0FL_POS)
-// #define CAN_MCAN_RXF0S_F0FL_MSK      (0x7FUL << CAN_MCAN_RXF0S_F0FL_POS) // from HAL
+// #define CAN_MCAN_RXF0S_F0FL_MSK      (0xFUL << CAN_MCAN_RXF0S_F0FL_POS)
+#define CAN_MCAN_RXF0S_F0FL_MSK      (0x7FUL << CAN_MCAN_RXF0S_F0FL_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0FL          CAN_MCAN_RXF0S_F0FL_MSK
 /* Rx FIFO 0 Get Index */
 #define CAN_MCAN_RXF0S_F0GI_POS      (8U)
-#define CAN_MCAN_RXF0S_F0GI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0GI_POS)
-// #define CAN_MCAN_RXF0S_F0GI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0GI_POS) // from HAL
+// #define CAN_MCAN_RXF0S_F0GI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0GI_POS)
+#define CAN_MCAN_RXF0S_F0GI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0GI_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0GI          CAN_MCAN_RXF0S_F0GI_MSK
 /* Rx FIFO 0 Put Index */
 #define CAN_MCAN_RXF0S_F0PI_POS      (16U)
-#define CAN_MCAN_RXF0S_F0PI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0PI_POS)
-// #define CAN_MCAN_RXF0S_F0PI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0PI_POS) // from HAL
+// #define CAN_MCAN_RXF0S_F0PI_MSK      (0x3UL << CAN_MCAN_RXF0S_F0PI_POS)
+#define CAN_MCAN_RXF0S_F0PI_MSK      (0x3FUL << CAN_MCAN_RXF0S_F0PI_POS) // from HAL
 #define CAN_MCAN_RXF0S_F0PI          CAN_MCAN_RXF0S_F0PI_MSK
 /* Rx FIFO 0 Full */
 #define CAN_MCAN_RXF0S_F0F_POS       (24U)
@@ -1152,8 +1288,8 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Rx FIFO 0 Acknowledge Index */
 #define CAN_MCAN_RXF0A_F0AI_POS      (0U)
-#define CAN_MCAN_RXF0A_F0AI_MSK      (0x7UL << CAN_MCAN_RXF0A_F0AI_POS)
-// #define CAN_MCAN_RXF0A_F0AI_MSK      (0x3FUL << CAN_MCAN_RXF0A_F0AI_POS) // from HAL
+// #define CAN_MCAN_RXF0A_F0AI_MSK      (0x7UL << CAN_MCAN_RXF0A_F0AI_POS)
+#define CAN_MCAN_RXF0A_F0AI_MSK      (0x3FUL << CAN_MCAN_RXF0A_F0AI_POS) // from HAL
 #define CAN_MCAN_RXF0A_F0AI          CAN_MCAN_RXF0A_F0AI_MSK
 #else
 /* Rx FIFO 0 Acknowledge Index */
@@ -1191,18 +1327,18 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Rx FIFO 1 Fill Level */
 #define CAN_MCAN_RXF1S_F1FL_POS      (0U)
-#define CAN_MCAN_RXF1S_F1FL_MSK      (0xFUL << CAN_MCAN_RXF1S_F1FL_POS)
-// #define CAN_MCAN_RXF1S_F1FL_MSK      (0x7FUL << CAN_MCAN_RXF1S_F1FL_POS) // from HAL
+// #define CAN_MCAN_RXF1S_F1FL_MSK      (0xFUL << CAN_MCAN_RXF1S_F1FL_POS)
+#define CAN_MCAN_RXF1S_F1FL_MSK      (0x7FUL << CAN_MCAN_RXF1S_F1FL_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1FL          CAN_MCAN_RXF1S_F1FL_MSK
 /* Rx FIFO 1 Get Index */
 #define CAN_MCAN_RXF1S_F1GI_POS      (8U)
-#define CAN_MCAN_RXF1S_F1GI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1GI_POS)
-// #define CAN_MCAN_RXF1S_F1GI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1GI_POS) // from HAL
+// #define CAN_MCAN_RXF1S_F1GI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1GI_POS)
+#define CAN_MCAN_RXF1S_F1GI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1GI_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1GI          CAN_MCAN_RXF1S_F1GI_MSK
 /* Rx FIFO 1 Put Index */
 #define CAN_MCAN_RXF1S_F1PI_POS      (16U)
-#define CAN_MCAN_RXF1S_F1PI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1PI_POS)
-// #define CAN_MCAN_RXF1S_F1PI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1PI_POS) // from HAL
+// #define CAN_MCAN_RXF1S_F1PI_MSK      (0x3UL << CAN_MCAN_RXF1S_F1PI_POS)
+#define CAN_MCAN_RXF1S_F1PI_MSK      (0x3FUL << CAN_MCAN_RXF1S_F1PI_POS) // from HAL
 #define CAN_MCAN_RXF1S_F1PI          CAN_MCAN_RXF1S_F1PI_MSK
 /* Rx FIFO 1 Full */
 #define CAN_MCAN_RXF1S_F1F_POS       (24U)
@@ -1242,8 +1378,8 @@
 /* Rx FIFO 1 Acknowledge Index */
 #ifdef CONFIG_CAN_STM32FD
 #define CAN_MCAN_RXF1A_F1AI_POS      (0U)
-#define CAN_MCAN_RXF1A_F1AI_MSK      (0x7UL << CAN_MCAN_RXF1A_F1AI_POS)
-// #define CAN_MCAN_RXF1A_F1AI_MSK      (0x3FUL << CAN_MCAN_RXF1A_F1AI_POS) // from HAL
+// #define CAN_MCAN_RXF1A_F1AI_MSK      (0x7UL << CAN_MCAN_RXF1A_F1AI_POS)
+#define CAN_MCAN_RXF1A_F1AI_MSK      (0x3FUL << CAN_MCAN_RXF1A_F1AI_POS) // from HAL
 #define CAN_MCAN_RXF1A_F1AI          CAN_MCAN_RXF1A_F1AI_MSK
 #else
 #define CAN_MCAN_RXF1A_F1AI_POS      (0U)
@@ -1254,15 +1390,18 @@
 /***************  Bit definition for CAN_MCAN_RXESC register  *****************/
 /* Rx FIFO 0 Data Field Size */
 #define CAN_MCAN_RXESC_F0DS_POS      (0U)
-#define CAN_MCAN_RXESC_F0DS_MSK      (0x7UL << CAN_MCAN_RXESC_F0DS_POS)
+#define CAN_MCAN_RXESC_F0DS_MSK      (0x7UL << CAN_MCAN_RXESC_F0DS_POS) // from HAL
+// #define CAN_MCAN_RXESC_F0DS_MSK      (0x0UL << CAN_MCAN_RXESC_F0DS_POS)
 #define CAN_MCAN_RXESC_F0DS          CAN_MCAN_RXESC_F0DS_MSK
 /* Rx FIFO 1 Data Field Size */
 #define CAN_MCAN_RXESC_F1DS_POS      (4U)
-#define CAN_MCAN_RXESC_F1DS_MSK      (0x7UL << CAN_MCAN_RXESC_F1DS_POS)
+#define CAN_MCAN_RXESC_F1DS_MSK      (0x7UL << CAN_MCAN_RXESC_F1DS_POS) // from HAL
+// #define CAN_MCAN_RXESC_F1DS_MSK      (0x0UL << CAN_MCAN_RXESC_F1DS_POS)
 #define CAN_MCAN_RXESC_F1DS          CAN_MCAN_RXESC_F1DS_MSK
 /* Receive Buffer Data Field Size */
 #define CAN_MCAN_RXESC_RBDS_POS      (8U)
-#define CAN_MCAN_RXESC_RBDS_MSK      (0x7UL << CAN_MCAN_RXESC_RBDS_POS)
+#define CAN_MCAN_RXESC_RBDS_MSK      (0x7UL << CAN_MCAN_RXESC_RBDS_POS) // from HAL
+// #define CAN_MCAN_RXESC_RBDS_MSK      (0x0UL << CAN_MCAN_RXESC_RBDS_POS)
 #define CAN_MCAN_RXESC_RBDS          CAN_MCAN_RXESC_RBDS_MSK
 
 /***************  Bit definition for CAN_MCAN_TXBC register  ******************/
@@ -1374,7 +1513,8 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Add Request */
 #define CAN_MCAN_TXBAR_AR_POS        (0U)
-#define CAN_MCAN_TXBAR_AR_MSK        (0x7UL << CAN_MCAN_TXBAR_AR_POS)
+// #define CAN_MCAN_TXBAR_AR_MSK        (0x7UL << CAN_MCAN_TXBAR_AR_POS)
+#define CAN_MCAN_TXBAR_AR_MSK        (0xFFFFFFFFUL << CAN_MCAN_TXBAR_AR_POS) // from HAL
 #define CAN_MCAN_TXBAR_AR            CAN_MCAN_TXBAR_AR_MSK
 #else
 /* Add Request */
@@ -1524,8 +1664,8 @@
 #ifdef CONFIG_CAN_STM32FD
 /* Event FIFO Acknowledge Index */
 #define CAN_MCAN_TXEFA_EFAI_POS      (0U)
-#define CAN_MCAN_TXEFA_EFAI_MSK      (0x3UL << CAN_MCAN_TXEFA_EFAI_POS)
-// #define CAN_MCAN_TXEFA_EFAI_MSK      (0x1FUL << CAN_MCAN_TXEFA_EFAI_POS) // from HAL
+// #define CAN_MCAN_TXEFA_EFAI_MSK      (0x3UL << CAN_MCAN_TXEFA_EFAI_POS)
+#define CAN_MCAN_TXEFA_EFAI_MSK      (0x1FUL << CAN_MCAN_TXEFA_EFAI_POS) // from HAL
 #define CAN_MCAN_TXEFA_EFAI          CAN_MCAN_TXEFA_EFAI_MSK
 #else
 /* Event FIFO Acknowledge Index */
@@ -1635,7 +1775,7 @@ struct can_mcan_reg {
 	volatile uint32_t txbto;    /* Tx Buffer Transmission */
 	volatile uint32_t txbcf;    /* Tx Buffer Cancellation Finished */
 	volatile uint32_t txbtie;   /* Tx Buffer Transmission Interrupt Enable */
-	volatile uint32_t txcbie;   /* Tx Buffer Cancellation Fi.Interrupt En. */
+	volatile uint32_t txbcie;   /* Tx Buffer Cancellation Fi.Interrupt En. */
 	volatile uint32_t res6[2];  /* Reserved (2) */
 #if defined(CONFIG_SOC_SERIES_STM32H7X)
 	volatile uint32_t txefc;    /* Tx Event FIFO Configuration */

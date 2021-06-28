@@ -90,19 +90,19 @@ void can_mcan_configure_timing(struct can_mcan_reg  *can,
 				timing->prescaler > 0);
 		__ASSERT_NO_MSG(timing->sjw <= 0x80 && timing->sjw > 0);
 
-		// can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL) & 0xFF) <<
-		// 		CAN_MCAN_NBTP_NTSEG1_POS |
-		// 	    (((uint32_t)timing->phase_seg2 - 1UL) & 0x7F) <<
-		// 		CAN_MCAN_NBTP_NTSEG2_POS |
-		// 	    (((uint32_t)timing->prescaler  - 1UL) & 0x1FF) <<
-		// 		CAN_MCAN_NBTP_NBRP_POS;
-
-		can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL)) <<
+		can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL) & 0xFF) <<
 				CAN_MCAN_NBTP_NTSEG1_POS |
-			    (((uint32_t)timing->phase_seg2 - 1UL)) <<
+			    (((uint32_t)timing->phase_seg2 - 1UL) & 0x7F) <<
 				CAN_MCAN_NBTP_NTSEG2_POS |
-			    (((uint32_t)timing->prescaler  - 1UL)) <<
+			    (((uint32_t)timing->prescaler  - 1UL) & 0x1FF) <<
 				CAN_MCAN_NBTP_NBRP_POS;
+
+		// can->nbtp = (((uint32_t)timing->phase_seg1 - 1UL)) <<
+		// 		CAN_MCAN_NBTP_NTSEG1_POS |
+		// 	    (((uint32_t)timing->phase_seg2 - 1UL)) <<
+		// 		CAN_MCAN_NBTP_NTSEG2_POS |
+		// 	    (((uint32_t)timing->prescaler  - 1UL)) <<
+		// 		CAN_MCAN_NBTP_NBRP_POS;
 
 		if (timing->sjw == CAN_SJW_NO_CHANGE) {
 			can->nbtp |= nbtp_sjw;
@@ -246,7 +246,8 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 		LOG_ERR("Failed to enter init mode");
 		return -EIO;
 	}
-
+  	/* Request initialisation */
+	can->cccr |= CAN_MCAN_CCCR_INIT;
 	/* Configuration Change Enable */
 	can->cccr |= CAN_MCAN_CCCR_CCE;
 	/* Enable auto retransmission */
@@ -268,98 +269,156 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 
 #ifdef CONFIG_CAN_STM32FD
 	// something fishy here
-	uint32_t StartAdress;
+	uint32_t StartAddress;
+	// original
 	// can->sidfc = ((uint32_t)msg_ram->std_filt & CAN_MCAN_SIDFC_FLSSA_MSK) |
 	// 	     (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
-	can->sidfc &= ~(CAN_MCAN_SIDFC_FLSSA_MSK);
-	StartAdress = 0;
-	can->sidfc |= (StartAdress << CAN_MCAN_SIDFC_FLSSA_POS);
-	can->sidfc &= ~(CAN_MCAN_SIDFC_LSS);
+	
+	// StartAddress = (uint32_t)msg_ram->std_filt;
+	StartAddress = 0;
+	can->sidfc = (StartAddress << CAN_MCAN_SIDFC_FLSSA_POS) & CAN_MCAN_SIDFC_FLSSA_MSK;
+
+	// StartAddress = (uint32_t)msg_ram->std_filt;
+	// can->sidfc = StartAddress & CAN_MCAN_SIDFC_FLSSA_MSK;
+	// can->sidfc &= ~(CAN_MCAN_SIDFC_FLSSA_MSK);
+	// weird
 	can->sidfc |= (ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS);
-	StartAdress += ARRAY_SIZE(msg_ram->std_filt);
+	// can->sidfc &= ~(CAN_MCAN_SIDFC_LSS_MSK);
+	// can->sidfc |= ((ARRAY_SIZE(msg_ram->std_filt) << CAN_MCAN_SIDFC_LSS_POS) & CAN_MCAN_SIDFC_LSS_MSK);
+	StartAddress += ARRAY_SIZE(msg_ram->std_filt);
 
+	// original
 	// can->xidfc = ((uint32_t)msg_ram->ext_filt & CAN_MCAN_XIDFC_FLESA_MSK) |
-	// 	     (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSS_POS);
-	can->xidfc &= ~(CAN_MCAN_XIDFC_FLESA_MSK); 
-	can->xidfc |= (StartAdress << CAN_MCAN_XIDFC_LSE_POS); 
+	// 	     (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSE_POS);
 
-	can->xidfc &= ~(CAN_MCAN_XIDFC_LSE_MSK);
-	can->xidfc |= (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSE_POS);
-	StartAdress += (ARRAY_SIZE(msg_ram->ext_filt) * 2);
+	// weird
+	// can->xidfc |= (StartAddress << CAN_MCAN_XIDFC_FLESA_POS); 
+	// can->xidfc &= ~(CAN_MCAN_XIDFC_FLESA_MSK); 
 
+	can->xidfc = 0;
+	can->xidfc |= ((StartAddress << CAN_MCAN_XIDFC_FLESA_POS) & CAN_MCAN_XIDFC_FLESA_MSK); 
+
+	// weird
+	// can->xidfc |= (ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSE_POS);
+	// can->xidfc &= ~(CAN_MCAN_XIDFC_LSE_MSK);
+
+	can->xidfc |= ((ARRAY_SIZE(msg_ram->ext_filt) << CAN_MCAN_XIDFC_LSE_POS) & CAN_MCAN_XIDFC_LSE_MSK);
+
+	StartAddress += (ARRAY_SIZE(msg_ram->ext_filt) * 2);
+
+	// original
 	// can->rxf0c = ((uint32_t)msg_ram->rx_fifo0 & CAN_MCAN_RXF0C_F0SA) |
 	// 	     (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
 
-	can->rxf0c &= ~(CAN_MCAN_RXF0C_F0SA_MSK);
-	can->rxf0c |= (StartAdress << CAN_MCAN_RXF0C_F0SA_POS); 
+	// weird
+	// can->rxf0c |= (StartAddress << CAN_MCAN_RXF0C_F0SA_POS); 
+	// can->rxf0c &= ~(CAN_MCAN_RXF0C_F0SA_MSK);
 
-	can->rxf0c &= ~(CAN_MCAN_RXF0C_F0S_MSK);
-	can->rxf0c |= (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
+	can->rxf0c = 0;
+	can->rxf0c |= ((StartAddress << CAN_MCAN_RXF0C_F0SA_POS) & CAN_MCAN_RXF0C_F0SA_MSK); 
 
+	// weird
+	// can->rxf0c |= (ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS);
+	// can->rxf0c &= ~(CAN_MCAN_RXF0C_F0S_MSK);
+
+	can->rxf0c |= ((ARRAY_SIZE(msg_ram->rx_fifo0) << CAN_MCAN_RXF0C_F0S_POS) & CAN_MCAN_RXF0C_F0S_MSK);
+
+	// original
 	// can->rxf1c = ((uint32_t)msg_ram->rx_fifo1 & CAN_MCAN_RXF1C_F1SA) |
 	// 	     (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
+
+	StartAddress += (ARRAY_SIZE(msg_ram->rx_fifo0) * 4);		// 8 DATA
 	
-	StartAdress += (ARRAY_SIZE(msg_ram->rx_fifo0) * 4);		// 8 DATA
-	
-	can->rxf1c &= ~(CAN_MCAN_RXF1C_F1SA_MSK);
-	can->rxf1c |= (StartAdress << CAN_MCAN_RXF1C_F1SA_POS); 
+	// weird
+	// can->rxf1c |= (StartAddress << CAN_MCAN_RXF1C_F1SA_POS); 
+	// can->rxf1c &= ~(CAN_MCAN_RXF1C_F1SA_MSK);
 
-	can->rxf1c &= ~(CAN_MCAN_RXF1C_F1S_MSK);
-	can->rxf1c |= (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
+	can->rxf1c = 0;
+	can->rxf1c |= ((StartAddress << CAN_MCAN_RXF1C_F1SA_POS) & CAN_MCAN_RXF1C_F1SA_MSK); 
 
-	StartAdress += (ARRAY_SIZE(msg_ram->rx_fifo1) * 4);		// 8 DATA
+	// weird
+	// can->rxf1c |= (ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS);
+	// can->rxf1c &= ~(CAN_MCAN_RXF1C_F1S_MSK);
 
+	can->rxf1c |= ((ARRAY_SIZE(msg_ram->rx_fifo1) << CAN_MCAN_RXF1C_F1S_POS) & CAN_MCAN_RXF1C_F1S_MSK);
+
+	StartAddress += (ARRAY_SIZE(msg_ram->rx_fifo1) * 4);		// 8 DATA
+
+	// original
 	// can->rxbc = ((uint32_t)msg_ram->rx_buffer & CAN_MCAN_RXBC_RBSA);
 
-	can->rxbc &= ~(CAN_MCAN_RXBC_RBSA_MSK);
-	can->rxbc |= (StartAdress << CAN_MCAN_RXBC_RBSA_POS);
+	// weird
+	// can->rxbc |= (StartAddress << CAN_MCAN_RXBC_RBSA_POS);
+	// can->rxbc &= ~(CAN_MCAN_RXBC_RBSA_MSK);
 
-	StartAdress += (ARRAY_SIZE(msg_ram->rx_buffer) * 4);		// 8 DATA
+	can->rxbc = 0;
+	can->rxbc |= ((StartAddress << CAN_MCAN_RXBC_RBSA_POS) & CAN_MCAN_RXBC_RBSA_MSK);
 
+	StartAddress += (ARRAY_SIZE(msg_ram->rx_buffer) * 4);		// 8 DATA
+
+	// original
 	// can->txefc = ((uint32_t)msg_ram->tx_event_fifo & CAN_MCAN_TXEFC_EFSA_MSK) |
 	// 	     (ARRAY_SIZE(msg_ram->tx_event_fifo) <<
 	// 	     CAN_MCAN_TXEFC_EFS_POS);
 
-	can->txefc &= ~(CAN_MCAN_TXEFC_EFSA_MSK);
-	can->txefc |= (StartAdress << CAN_MCAN_TXEFC_EFSA_POS);
+	// weird
+	// can->txefc |= (StartAddress << CAN_MCAN_TXEFC_EFSA_POS);
+	// can->txefc &= ~(CAN_MCAN_TXEFC_EFSA_MSK);
 
-	can->txefc &= ~(CAN_MCAN_TXEFC_EFS_MSK);
-	can->txefc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXEFC_EFS_POS);
+	can->txefc = 0;	
+	can->txefc |= ((StartAddress << CAN_MCAN_TXEFC_EFSA_POS) & CAN_MCAN_TXEFC_EFSA_MSK);
 
-	StartAdress += (ARRAY_SIZE(msg_ram->tx_event_fifo) * 2);		// 8 DATA
+	// weird
+	// can->txefc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXEFC_EFS_POS);
+	// can->txefc &= ~(CAN_MCAN_TXEFC_EFS_MSK);
 
+	can->txefc |= ((ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXEFC_EFS_POS) & CAN_MCAN_TXEFC_EFS_MSK);
+
+	StartAddress += (ARRAY_SIZE(msg_ram->tx_event_fifo) * 2);		// 8 DATA
+
+	// original
 	// can->txbc = ((uint32_t)msg_ram->tx_buffer & CAN_MCAN_TXBC_TBSA) |
 	// 	    (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_TFQS_POS);
 
-	can->txbc &= ~(CAN_MCAN_TXBC_TBSA_MSK);
-	can->txefc |= (StartAdress << CAN_MCAN_TXBC_TBSA_POS);
+	// weird
+	// can->txbc |= (StartAddress << CAN_MCAN_TXBC_TBSA_POS);
+	// can->txbc &= ~(CAN_MCAN_TXBC_TBSA_MSK);
 
-	can->txbc &= ~(CAN_MCAN_TXBC_NDTB_MSK);
-	can->txbc |= (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_NDTB_POS);
+	can->txbc = 0;
+	can->txbc |= ((StartAddress << CAN_MCAN_TXBC_TBSA_POS) & CAN_MCAN_TXBC_TBSA_MSK);
 
-	can->txbc &= ~(CAN_MCAN_TXBC_TFQS_MSK);
-	can->txbc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXBC_TFQS_POS);
+	// weird
+	// can->txbc |= (ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_NDTB_POS);
+	// can->txbc &= ~(CAN_MCAN_TXBC_NDTB_MSK);
+
+	can->txbc |= ((ARRAY_SIZE(msg_ram->tx_buffer) << CAN_MCAN_TXBC_NDTB_POS) & CAN_MCAN_TXBC_NDTB_MSK);
+
+	// weird
+	// can->txbc |= (ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXBC_TFQS_POS);
+	// can->txbc &= ~(CAN_MCAN_TXBC_TFQS_MSK);
+
+	can->txbc |= ((ARRAY_SIZE(msg_ram->tx_event_fifo) << CAN_MCAN_TXBC_TFQS_POS) & CAN_MCAN_TXBC_TFQS_MSK);
 
 	if (sizeof(msg_ram->tx_buffer[0].data) <= 24) {
-		can->txesc = (sizeof(msg_ram->tx_buffer[0].data) - 8) / 4;
+		// can->txesc = (sizeof(msg_ram->tx_buffer[0].data) - 8) / 4;
 	} else {
-		can->txesc = (sizeof(msg_ram->tx_buffer[0].data) - 32) / 16 + 5;
+		// can->txesc = (sizeof(msg_ram->tx_buffer[0].data) - 32) / 16 + 5;
 	}
 
 	if (sizeof(msg_ram->rx_fifo0[0].data) <= 24) {
-		can->rxesc = (((sizeof(msg_ram->rx_fifo0[0].data) - 8) / 4) <<
-				CAN_MCAN_RXESC_F0DS_POS) |
-			     (((sizeof(msg_ram->rx_fifo1[0].data) - 8) / 4) <<
-				CAN_MCAN_RXESC_F1DS_POS) |
-			     (((sizeof(msg_ram->rx_buffer[0].data) - 8) / 4) <<
-				CAN_MCAN_RXESC_RBDS_POS);
+		// can->rxesc = (((sizeof(msg_ram->rx_fifo0[0].data) - 8) / 4) <<
+		// 		CAN_MCAN_RXESC_F0DS_POS) |
+		// 	     (((sizeof(msg_ram->rx_fifo1[0].data) - 8) / 4) <<
+		// 		CAN_MCAN_RXESC_F1DS_POS) |
+		// 	     (((sizeof(msg_ram->rx_buffer[0].data) - 8) / 4) <<
+		// 		CAN_MCAN_RXESC_RBDS_POS);
 	} else {
-		can->rxesc = (((sizeof(msg_ram->rx_fifo0[0].data) - 32)
-				/ 16 + 5) << CAN_MCAN_RXESC_F0DS_POS) |
-			     (((sizeof(msg_ram->rx_fifo1[0].data) - 32)
-				/ 16 + 5) << CAN_MCAN_RXESC_F1DS_POS) |
-			     (((sizeof(msg_ram->rx_buffer[0].data) - 32)
-				/ 16 + 5) << CAN_MCAN_RXESC_RBDS_POS);
+		// can->rxesc = (((sizeof(msg_ram->rx_fifo0[0].data) - 32)
+		// 		/ 16 + 5) << CAN_MCAN_RXESC_F0DS_POS) |
+		// 	     (((sizeof(msg_ram->rx_fifo1[0].data) - 32)
+		// 		/ 16 + 5) << CAN_MCAN_RXESC_F1DS_POS) |
+		// 	     (((sizeof(msg_ram->rx_buffer[0].data) - 32)
+		// 		/ 16 + 5) << CAN_MCAN_RXESC_RBDS_POS);
 	}
 #endif
 
@@ -451,7 +510,11 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 		  CAN_MCAN_IE_RF1L;
 
 #ifdef CONFIG_CAN_STM32FD
+#if defined(CONFIG_SOC_SERIES_STM32H7X)
+	can->ils = CAN_MCAN_ILS_RF0N | CAN_MCAN_ILS_RF1N;
+#else
 	can->ils = CAN_MCAN_ILS_RXFIFO0 | CAN_MCAN_ILS_RXFIFO1;
+#endif
 #else
 	can->ils = CAN_MCAN_ILS_RF0N | CAN_MCAN_ILS_RF1N;
 #endif
@@ -472,6 +535,14 @@ int can_mcan_init(const struct device *dev, const struct can_mcan_config *cfg,
 	     ptr++) {
 		*ptr = 0;
 	}
+	/* Tx Fifo mode = 1; Tx Queue = 0x40000000*/
+	can->txbc |= 1;
+
+	// /* FDCAN_DATA_BYTES_8 */
+	// can->txesc |= 4;
+	can->txesc &= ~(0x00000007U);
+
+	can->rxesc &= ~(0x00000777U);
 
 	return 0;
 }
@@ -574,8 +645,9 @@ static void can_mcan_get_message(struct can_mcan_data *data,
 	int data_length;
 	void *cb_arg;
 	struct can_mcan_rx_fifo_hdr hdr;
-
+	LOG_DBG("getting message");
 	while ((*fifo_status_reg & CAN_MCAN_RXF0S_F0FL)) {
+		LOG_DBG("getting message index");
 		get_idx = (*fifo_status_reg & CAN_MCAN_RXF0S_F0GI) >>
 			   CAN_MCAN_RXF0S_F0GI_POS;
 		hdr = fifo[get_idx].hdr;
